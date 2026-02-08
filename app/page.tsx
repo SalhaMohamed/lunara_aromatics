@@ -1,10 +1,10 @@
+"use client";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
-import Link from "next/link"; // Hii ni muhimu kwa ajili ya kuunganisha pages
-import { Instagram, Facebook } from 'lucide-react';
+import Link from "next/link";
+import { Instagram, Facebook, ArrowRight, Sparkles, Tag } from 'lucide-react';
 
 export default function Home() {
-  // Nimeongeza 'slug' ili tujue link iende wapi
   const categories = [
     { 
       name: "PERFUMES", 
@@ -30,35 +30,64 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white font-sans text-stone-900">
+      {/* Top Notification Bar */}
+      <div className="w-full bg-[#5B2C6F] py-2 text-center overflow-hidden">
+        <p className="text-[9px] md:text-[10px] text-white uppercase tracking-[0.3em] animate-pulse">
+          ✨ Karibu Lunara! Jisajili sasa upate <span className="font-bold text-[#C5A059]">10% Discount</span> kupitia SMS ✨
+        </p>
+      </div>
+      
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative w-full h-[600px] bg-[#fdfbf7] flex items-center overflow-hidden">
-        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      {/* Improved Hero Section with Offer */}
+      <section className="relative w-full min-h-[700px] bg-[#fdfbf7] flex items-center overflow-hidden">
+        {/* Abstract Background Decoration */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-[#5B2C6F]/5 clip-path-slant hidden md:block"></div>
+        
+        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10 py-20">
           
-          <div className="space-y-6 z-10">
+          <div className="space-y-8 animate-in fade-in slide-in-from-left duration-1000">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C5A059]/10 text-[#C5A059] border border-[#C5A059]/20">
+              <Sparkles size={14} />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Special Welcome Offer</span>
+            </div>
+
             <h1 className="text-5xl md:text-7xl font-serif text-[#C5A059] leading-[1.1]">
               Experience Pure <br />
               <span className="italic text-[#5B2C6F]">Elegance</span>
             </h1>
+            
             <p className="text-stone-500 max-w-sm text-lg leading-relaxed font-light">
-              Elevate your lifestyle with our curated collection of luxury scents and aromatics.
+              Elevate your lifestyle with our curated luxury scents. 
+              <span className="block mt-2 font-medium text-[#5B2C6F]">Pata punguzo la 10% kwenye oda yako ya kwanza ukisajili namba yako leo.</span>
             </p>
             
-            {/* HAPA NIMEREKEBISHA BUTTON IWE LINK */}
-            <Link href="/categories">
-              <button className="bg-[#5B2C6F] text-white px-12 py-4 rounded-sm hover:bg-[#4A235A] transition-all duration-300 uppercase text-[11px] font-bold tracking-[0.3em] shadow-xl mt-4">
-                Shop the Collection
-              </button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/register">
+                <button className="bg-[#5B2C6F] text-white px-10 py-5 rounded-sm hover:bg-[#4A235A] transition-all duration-300 uppercase text-[11px] font-bold tracking-[0.3em] shadow-2xl flex items-center justify-center gap-3 w-full sm:w-auto">
+                  Jisajili na Upate Ofa <ArrowRight size={16} />
+                </button>
+              </Link>
+              <Link href="/categories">
+                <button className="bg-transparent border border-stone-200 text-stone-800 px-10 py-5 rounded-sm hover:bg-white transition-all duration-300 uppercase text-[11px] font-bold tracking-[0.3em] w-full sm:w-auto">
+                  Shop Now
+                </button>
+              </Link>
+            </div>
           </div>
 
-          <div className="relative h-[550px] w-full hidden md:block group">
+          <div className="relative h-[600px] w-full hidden md:block group">
+            {/* Floating Discount Badge */}
+            <div className="absolute top-10 right-10 z-20 w-24 h-24 bg-[#C5A059] rounded-full flex flex-col items-center justify-center text-white shadow-2xl border-4 border-white animate-bounce">
+              <span className="text-xl font-black">10%</span>
+              <span className="text-[9px] font-bold uppercase">OFF</span>
+            </div>
+
             <Image 
               src="https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&auto=format&fit=crop"
               alt="Lunara Premium Fragrance"
               fill
-              className="object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-105"
+              className="object-contain drop-shadow-2xl transition-transform duration-1000 group-hover:scale-105"
               priority
             />
           </div>
@@ -77,7 +106,6 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
           {categories.map((cat, index) => (
-            /* HAPA NIMEREKEBISHA KADI ZIWE LINKS */
             <Link href={`/categories/${cat.slug}`} key={index} className="group cursor-pointer block">
               <div className="relative aspect-[4/5] bg-[#F9F9F9] mb-6 overflow-hidden shadow-sm transition-transform duration-700 hover:shadow-2xl">
                 <Image 
@@ -100,14 +128,15 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-20 border-t border-stone-100 bg-white">
+      <footer className="py-20 border-t border-stone-100 bg-[#F9F7F4]">
         <div className="container mx-auto px-6 flex flex-col items-center">
+          <h2 className="text-2xl font-serif text-[#5B2C6F] mb-8 italic">Lunara Aromatics</h2>
           <div className="flex gap-8 mb-12">
             <Instagram size={20} className="text-stone-400 hover:text-[#5B2C6F] transition-colors cursor-pointer" />
             <Facebook size={20} className="text-stone-400 hover:text-[#5B2C6F] transition-colors cursor-pointer" />
           </div>
           <p className="text-[10px] text-stone-300 tracking-[0.4em] uppercase">
-            © 2026 LUNARA AROMATICS
+            © 2026 LUNARA AROMATICS | ZANZIBAR & DAR ES SALAAM
           </p>
         </div>
       </footer>

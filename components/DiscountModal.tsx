@@ -1,21 +1,44 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, Gift, Star, UserPlus, ArrowRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/client"; // IMEREKEBISHWA HAPA
 
 export default function DiscountModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const supabase = createClient(); // INITIALIZE CLIENT
 
   useEffect(() => {
-    // Itatokea baada ya sekunde 5 (5000ms)
-    const timer = setTimeout(() => {
+    const checkEligibility = async () => {
       const shown = localStorage.getItem("discount_shown");
-      if (!shown) {
-        setIsOpen(true);
+      if (shown === "true") return;
+
+      // Angalia kama mteja amelogin kwa kutumia client mpya
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_code_used')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.is_code_used) {
+          localStorage.setItem("discount_shown", "true");
+          return;
+        }
       }
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    };
+
+    checkEligibility();
+  }, [supabase]); // Ongeza supabase hapa
 
   const closeMenu = () => {
     setIsOpen(false);
@@ -27,14 +50,10 @@ export default function DiscountModal() {
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-stone-900/70 backdrop-blur-sm">
       <div className="relative bg-white w-full max-w-2xl overflow-hidden shadow-2xl animate-in zoom-in duration-500 rounded-sm">
-        
-        {/* Close Button */}
         <button onClick={closeMenu} className="absolute top-4 right-4 text-stone-400 hover:text-black z-10 transition">
           <X size={24} />
         </button>
-        
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Left Side: Branding/Image */}
           <div className="bg-[#5B2C6F] p-10 text-white flex flex-col justify-center items-center text-center space-y-4">
             <div className="p-4 bg-white/10 rounded-full">
               <Star size={40} className="text-[#C5A059]" />
@@ -42,21 +61,13 @@ export default function DiscountModal() {
             <h2 className="text-2xl font-serif tracking-widest uppercase">Lunara Privilege</h2>
             <p className="text-[10px] font-light tracking-[0.2em] opacity-70">EXCLUSIVE ACCESS & REWARDS</p>
           </div>
-
-          {/* Right Side: Options */}
           <div className="p-10 space-y-8">
             <div className="space-y-2">
               <h3 className="text-xl font-serif text-stone-800">Karibu Lunara Aromatics</h3>
               <p className="text-xs text-stone-500 leading-relaxed">Chagua njia yako ya kujiunga na uanze kufurahia harufu za anasa kwa bei nafuu.</p>
             </div>
-
             <div className="space-y-4">
-              {/* Option 1: New User */}
-              <Link 
-                href="/register" 
-                onClick={closeMenu}
-                className="group flex items-center justify-between p-4 border border-stone-100 hover:border-[#C5A059] transition rounded-sm"
-              >
+              <Link href="/register" onClick={closeMenu} className="group flex items-center justify-between p-4 border border-stone-100 hover:border-[#C5A059] transition rounded-sm">
                 <div className="flex items-center gap-3">
                   <UserPlus size={20} className="text-[#C5A059]" />
                   <div>
@@ -66,13 +77,7 @@ export default function DiscountModal() {
                 </div>
                 <Gift size={16} className="text-[#C5A059] group-hover:scale-125 transition" />
               </Link>
-
-              {/* Option 2: Returning Member */}
-              <Link 
-                href="/login" 
-                onClick={closeMenu}
-                className="group flex items-center justify-between p-4 border border-stone-100 hover:border-[#5B2C6F] transition rounded-sm"
-              >
+              <Link href="/login" onClick={closeMenu} className="group flex items-center justify-between p-4 border border-stone-100 hover:border-[#5B2C6F] transition rounded-sm">
                 <div className="flex items-center gap-3">
                   <Star size={20} className="text-[#5B2C6F]" />
                   <div>
@@ -83,7 +88,6 @@ export default function DiscountModal() {
                 <ArrowRight size={16} className="text-[#5B2C6F] group-hover:translate-x-1 transition" />
               </Link>
             </div>
-
             <button onClick={closeMenu} className="w-full text-[9px] uppercase tracking-[0.3em] text-stone-400 hover:text-stone-800 transition">
               Continue as Guest
             </button>

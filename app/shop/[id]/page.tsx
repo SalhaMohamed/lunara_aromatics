@@ -1,128 +1,150 @@
 "use client";
-
-import { toast } from "sonner";
-import Navbar from "@/components/Navbar";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Minus, Plus, ShoppingBag } from "lucide-react";
-import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import Navbar from "@/components/Navbar";
+const supabase = createClient();
+import Image from "next/image";
+import { Minus, Plus, ShoppingBag, Loader2 } from "lucide-react";
 import { useCart } from "@/app/context/CartContext";
-import { useLanguage } from "@/app/context/LanguageContext"; // Tumeongeza hii
-import { allProducts } from "@/app/data/products";
-import { translations } from "@/app/data/translations";
+import { toast } from "sonner";
 
 export default function ProductPage() {
-  const params = useParams();
-  const id = params.id;
-  const { addToCart } = useCart();
-  const { lang } = useLanguage(); // Sasa inasikiliza Navbar
-  const t = translations[lang];
-  
-  const product = allProducts.find((p) => p.id === id);
-
+  const { id } = useParams();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || "");
+  const [selectedSize, setSelectedSize] = useState("");
+  const { addToCart } = useCart();
 
-  if (!product) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center py-20">
-          <h2 className="text-2xl font-serif text-stone-400">{t.noResults}</h2>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    async function fetchProduct() {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (!error && data) {
+        setProduct(data);
+        // Set size ya kwanza iwe selected by default
+        if (data.sizes && data.sizes.length > 0) {
+          setSelectedSize(data.sizes[0]);
+        }
+      }
+      setLoading(false);
+    }
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <Loader2 className="animate-spin text-[#5B2C6F]" size={32} />
+      <p className="text-stone-400 font-serif italic">Revealing elegance...</p>
+    </div>
+  );
+  
+  if (!product) return (
+    <div className="min-h-screen">
+      <Navbar />
+      <div className="text-center py-20 font-serif text-stone-400">Product not found in our boutique.</div>
+    </div>
+  );
 
   const handleAddToCart = () => {
     addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: product.image_url,
       quantity: quantity,
-      size: selectedSize
+      size: selectedSize || "Standard"
     });
-    
-    // Toast inayofuata lugha ya website
-    toast.success(t.addedToCart, {
-      description: t.viewCart,
-      action: {
-        label: lang === 'en' ? 'Cart' : 'Kapu',
-        onClick: () => window.location.href = "/cart",
-      },
-    });
+    toast.success(`${product.name} imewekwa kwenye kapu`);
   };
 
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
-          {/* IMAGE WITH ZOOM EFFECT */}
-          <div className="relative aspect-[4/5] bg-gray-50 overflow-hidden group shadow-sm border border-stone-100">
+          {/* PRODUCT IMAGE - Updated to object-contain */}
+          <div className="relative aspect-square bg-[#FDFDFD] border border-stone-50 overflow-hidden shadow-sm">
             <Image 
-              src={product.image} 
+              src={product.image_url} 
               alt={product.name} 
               fill 
-              className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
-              priority 
+              className="object-contain p-8 md:p-12 transition-transform duration-700 hover:scale-105" 
             />
           </div>
-
-          {/* DETAILS */}
+          
           <div className="space-y-8">
-            <div>
-              <p className="text-[#C5A059] text-xs font-bold uppercase tracking-[0.3em] mb-2">
-                {product.category.replace("-", " & ")}
+            <header>
+              <p className="text-[#C5A059] text-[10px] font-bold uppercase tracking-[0.4em] mb-3">
+                {product.category?.replace('-', ' & ')}
               </p>
-              <h1 className="text-4xl md:text-5xl font-serif text-[#5B2C6F] leading-tight">
+              <h1 className="text-4xl md:text-5xl font-serif text-[#5B2C6F] uppercase leading-tight">
                 {product.name}
               </h1>
-              <p className="text-2xl text-stone-800 mt-4 font-light">
+              <p className="text-2xl text-stone-800 mt-4 font-sans font-light tracking-tight">
                 TZS {product.price.toLocaleString()}
               </p>
-            </div>
+            </header>
 
-            <p className="text-stone-500 leading-relaxed font-light">
-              {product.description}
-            </p>
-
-            <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
-                {lang === 'en' ? 'Select Size' : 'Chagua Saizi'}
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Description</p>
+              <p className="text-stone-500 font-light leading-relaxed text-sm italic border-l-2 border-stone-100 pl-4">
+                {product.description || "No description available for this luxury piece."}
               </p>
-              <div className="flex gap-3">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-6 py-2 text-xs font-bold border transition-all ${
-                      selectedSize === size 
-                      ? 'border-[#5B2C6F] bg-[#5B2C6F] text-white' 
-                      : 'border-stone-200 text-stone-500 hover:border-stone-400'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-6">
-              <div className="flex items-center border border-stone-200 w-fit">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-4 hover:bg-stone-50"><Minus size={16}/></button>
-                <span className="px-6 font-bold">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-4 hover:bg-stone-50"><Plus size={16}/></button>
+            
+            {/* SIZES SECTION */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="space-y-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Available Sizes</p>
+                <div className="flex flex-wrap gap-3">
+                  {product.sizes.map((size: string) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-8 py-3 text-[10px] font-bold uppercase tracking-widest border transition-all duration-300 ${
+                        selectedSize === size 
+                        ? 'border-[#5B2C6F] bg-[#5B2C6F] text-white shadow-md' 
+                        : 'border-stone-200 text-stone-500 hover:border-stone-400'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-              
+            )}
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              {/* QUANTITY PICKER */}
+              <div className="flex items-center border border-stone-200 bg-white">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                  className="p-4 hover:text-[#5B2C6F] transition-colors"
+                >
+                  <Minus size={14}/>
+                </button>
+                <span className="w-12 text-center font-sans font-bold">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(quantity + 1)} 
+                  className="p-4 hover:text-[#5B2C6F] transition-colors"
+                >
+                  <Plus size={14}/>
+                </button>
+              </div>
+
+              {/* ADD TO CART BUTTON */}
               <button 
-                onClick={handleAddToCart}
-                className="flex-grow bg-[#5B2C6F] text-white py-4 uppercase text-xs font-bold tracking-[0.2em] hover:bg-[#4A235A] transition shadow-lg flex items-center justify-center gap-3"
+                onClick={handleAddToCart} 
+                className="flex-grow bg-[#5B2C6F] text-white py-5 px-8 uppercase text-[10px] font-bold tracking-[0.3em] flex items-center justify-center gap-3 hover:bg-[#4A235A] transition shadow-lg active:scale-95"
               >
-                <ShoppingBag size={18} />
-                {lang === 'en' ? 'Add to Bag' : 'Weka kwenye Kapu'}
+                <ShoppingBag size={18} /> Add to Bag
               </button>
             </div>
           </div>
