@@ -232,7 +232,7 @@ export default function CartPage() {
       if (deliveryMethod === 'delivery') {
         message += `\n\n_Nimeshaona namba za malipo kwenye website, naomba unipe hesabu ya nauli ya usafiri ili nikamilishe malipo yote._`;
       } else {
-        message += `\n\n_Nitakuja kuchukua mzigo wangu na kufanya malipo dukani._`;
+        message += `\n\n_Nitafanya malipo na kuja kuchukua mzigo wangu dukani._`;
       }
       message += `\n\n_(Kama umeshalipia, tafadhali ambatanisha screenshot ya muamala wako hapa)_`;
     }

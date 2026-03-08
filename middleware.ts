@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
       const { data: profile } = await supabase.from('profiles').select('preferred_lang').eq('id', user.id).single();
       if (profile?.preferred_lang) {
         preferredLang = profile.preferred_lang;
-        response.cookies.set('lunara_lang_ssr', preferredLang, { maxAge: 60 * 60 * 24 * 365 });
+        response.cookies.set('Bahmad_lang_ssr', preferredLang, { maxAge: 60 * 60 * 24 * 365 });
       }
     } catch (e) {
       // ignore
@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
 
   // 1. ULINZI WA ADMIN: Zuia wasio admin kuingia /admin
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user || user.email !== 'admin@lunara.com') {
+    if (!user || user.email !== 'admin@bahmad.com') {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }

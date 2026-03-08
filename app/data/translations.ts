@@ -38,7 +38,7 @@ export const translations = {
     premiumQuality: "Premium Quality",
     noResults: "No products found.",
     // Home page
-    welcomeBanner: "Welcome to Lunara! Register now and get 10% off",
+    welcomeBanner: "Welcome to Bahmad Perfumes! Register now and get 10% off",
     discountText: "10% Discount",
     experiencePureElegance: "Experience Pure Elegance",
     searchPlaceholder: "Search men, women or perfumes...",
@@ -54,10 +54,10 @@ export const translations = {
     // About page
     curatorsOfElegance: "Curators of Elegance",
     aboutPhrase: "Bringing the world's finest scents and skincare to the heart of Tanzania.",
-    theLunaraCollection: "The Lunara Collection",
-    aboutWelcome: "Welcome to Lunara Aromatics, Tanzania's premier destination for luxury beauty and fragrance. We are not just a store; we are a sanctuary for those who appreciate quality.",
+    theBahmadCollection: "The Bahmad Collection",
+    aboutWelcome: "Welcome to Bahmad Perfumes, Tanzania's premier destination for luxury beauty and fragrance. We are not just a store; we are a sanctuary for those who appreciate quality.",
     aboutAuthenticity: "We understand that true luxury lies in authenticity. That is why we meticulously select and stock products from the world's most renowned brands. From iconic designer perfumes to premium dermatological creams and indulgent bath essentials, our shelves are curated to offer you nothing but the best.",
-    aboutGuarantee: "Whether you are looking for a signature scent from Dior, a revitalizing lotion from Nivea, or a rare gift set, Lunara guarantees quality, variety, and sophistication in every purchase.",
+    aboutGuarantee: "Whether you are looking for a signature scent from Dior, a revitalizing lotion from Nivea, or a rare gift set, Bahmad guarantees quality, variety, and sophistication in every purchase.",
     authentic: "100% Authentic",
     authenticDesc: "We guarantee that every product on our shelves is original and sourced directly from trusted distributors.",
     globalBrands: "Global Brands",
@@ -74,7 +74,7 @@ export const translations = {
     discountApplied: "Congrats! 10% discount offer applied.",
     discountAlreadyApplied: "Discount already applied.",
     // Orders page
-    lunaraLoading: "Lunara Loading...",
+    BahmadLoading: "Bahmad Loading...",
     loginToSeeOrders: "Please log in to see your orders",
     myOrders: "My Orders",
     trackElegance: "Track your elegance journey",
@@ -127,7 +127,7 @@ export const translations = {
     premiumQuality: "Ubora wa Juu",
     noResults: "Bidhaa haijapatikana.",
     // Home page
-    welcomeBanner: "Karibu Lunara! Jisajili sasa na upate punguzo la 10%",
+    welcomeBanner: "Karibu Bahmad Perfumes! Jisajili sasa na upate punguzo la 10%",
     discountText: "10% Discount",
     experiencePureElegance: "Pata Ustadi Safi",
     searchPlaceholder: "Tafuta wanaume, wanawake au manukato...",
@@ -146,10 +146,10 @@ export const translations = {
     // About page
     curatorsOfElegance: "Wakamatia wa Kusimama",
     aboutPhrase: "Kuleta manukato bora zaidi na bidhaa za kujihadharisha kwenye moyo wa Tanzania.",
-    theLunaraCollection: "Mkusanyiko wa Lunara",
-    aboutWelcome: "Karibu kwa Lunara Aromatics, mahali pa kwanza nchi ya Tanzania kwa uzuri na manukato ya kifalme. Sisi si duka tu; ni mahali pa kutulia kwa wale wanaoapendezwa na ubora.",
+    theBahmadCollection: "Mkusanyiko wa Bahmad",
+    aboutWelcome: "Karibu kwa Bahmad Perfumes, mahali pa kwanza nchi ya Tanzania kwa uzuri na manukato ya kifalme. Sisi si duka tu; ni mahali pa kutulia kwa wale wanaoapendezwa na ubora.",
     aboutAuthenticity: "Tunaelewa kwamba manukato ya kweli yna kwa kuwa na ukweli. Kwa hiyo tunachagua kwa makini na kukamatia bidhaa kutoka kwa wauzaji wanaotaka sana. Kutoka kwa manukato ya mkakati maarufu hadi kwa bidhaa za kujenga kukamatia, rafu zetu zimekuangalifishwa kupea kila kitu.",
-    aboutGuarantee: "Ikiwa unaltafuta manukato maalum kutoka kwa Dior, kujenga laini kutoka kwa Nivea, au zawadi nadra, Lunara inapangalia ubora, aina, na kusimama kwa kila ununuzi.",
+    aboutGuarantee: "Ikiwa unaltafuta manukato maalum kutoka kwa Dior, kujenga laini kutoka kwa Nivea, au zawadi nadra, Bahmad inapangalia ubora, aina, na kusimama kwa kila ununuzi.",
     authentic: "Asili 100%",
     authenticDesc: "Tunapangalia kwamba kila bidhaa kwenye rafu zetu ni original na ikifarakana moja kwa moja kutoka kwa wauzaji wathika.",
     globalBrands: "Bidhaa za Dunia",
@@ -166,7 +166,7 @@ export const translations = {
     discountApplied: "Punguzo! Punguzo la 10% limeombolezwa.",
     discountAlreadyApplied: "Punguzo limekwisha ombolezwa.",
     // Orders page
-    lunaraLoading: "Lunara Inapakia...",
+    BahmadLoading: "Bahmad Inapakia...",
     loginToSeeOrders: "Tafadhali ingia kuona oda zako",
     myOrders: "Oda Zangu",
     trackElegance: "Fuatilia safari yako ya kusimama",

@@ -55,7 +55,7 @@ export default function ProductPage() {
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white">
       <Loader2 className="animate-spin text-[#5B2C6F]" size={32} />
-      <p className="text-stone-400 font-serif italic tracking-widest uppercase text-[10px]">Lunara Elegance...</p>
+<p className="text-stone-400 font-serif italic tracking-widest uppercase text-[10px]">Bahmad Elegance...</p>
     </div>
   );
   

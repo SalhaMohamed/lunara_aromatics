@@ -140,7 +140,7 @@ export default function ShopPage() {
       <Navbar />
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-pulse font-serif text-[#5B2C6F] tracking-[0.5em] uppercase text-sm">Lunara Boutique</div>
+          <div className="animate-pulse font-serif text-[#5B2C6F] tracking-[0.5em] uppercase text-sm">Bahmad Boutique</div>
         </div>
       }>
         <ShopContent />

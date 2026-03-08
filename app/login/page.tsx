@@ -24,7 +24,7 @@ export default function LoginPage() {
   const supabase = createClient();
 
   // WEKA EMAIL YAKO YA ADMIN HAPA (Kwa sasa tunatumia hii simple check)
-  const ADMIN_EMAIL = "admin@lunara.com"; 
+  const ADMIN_EMAIL = "admin@Bahmad.com"; 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -16,7 +16,7 @@ export default function AboutPage() {
         {/* Picha ya Duka au Rafu za Kifahari */}
         <Image 
           src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1600&auto=format&fit=crop" 
-          alt="Lunara Aromatics Display" 
+          alt="Bahmad Perfumes Display" 
           fill 
           className="object-cover"
           priority
@@ -43,7 +43,7 @@ export default function AboutPage() {
         {/* Upande wa Maelezo */}
         <div className="space-y-8 order-2 md:order-1">
           <h2 className="text-3xl font-serif text-[#5B2C6F] uppercase tracking-widest">
-            {t.theLunaraCollection}
+            {t.theBahmadCollection}
           </h2>
           <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light">
             <p>

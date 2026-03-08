@@ -9,7 +9,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Pakia data kutoka LocalStorage
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedCart = localStorage.getItem("lunaraCart");
+      const savedCart = localStorage.getItem("BahmadCart");
       if (savedCart) {
         try {
           setCartItems(JSON.parse(savedCart));
@@ -23,7 +23,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Hifadhi data kwenye LocalStorage mabadiliko yakitokea
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem("lunaraCart", JSON.stringify(cartItems));
+      localStorage.setItem("BahmadCart", JSON.stringify(cartItems));
     }
   }, [cartItems]);
 
@@ -70,7 +70,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => {
     setCartItems([]);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem("lunaraCart");
+      localStorage.removeItem("BahmadCart");
     }
   };
 

@@ -24,7 +24,7 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [hasOrderUpdate, setHasOrderUpdate] = useState(false);
-  const ADMIN_EMAIL = "admin@lunara.com"; 
+const ADMIN_EMAIL = "admin@bahmadperfumes.com";
 
   const t = translations[lang];
 
@@ -100,7 +100,7 @@ export default function Navbar() {
           <Link href="/" className="relative w-40 md:w-52 h-10 flex items-center group" title={t.home || "Home"}>
             <Image 
               src="/logo.png" 
-              alt="Lunara Aromatics" 
+              alt="Bahmad Perfumes" 
               fill 
               className="object-contain transition-transform duration-500 group-hover:scale-105"
               priority 

@@ -69,7 +69,7 @@ export default function RegisterPage() {
       }
 
       // 2. Success Feedback
-      toast.success(`Karibu Lunara, ${formData.name}!`);
+      toast.success(`Karibu Bahmad, ${formData.name}!`);
       
       // 3. Redirect au Refresh
       router.push("/login");
@@ -91,7 +91,7 @@ export default function RegisterPage() {
           <div className="text-center mb-10">
             <h1 className="text-3xl font-serif text-[#5B2C6F] mb-3 font-bold">Create Account</h1>
             <div className="h-0.5 w-12 bg-[#C5A059] mx-auto mb-3"></div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-stone-400">Join the world of Lunara</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-stone-400">Join the world of Bahmad Perfumes</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-6">

@@ -58,12 +58,12 @@ export default function DiscountModal() {
             <div className="p-4 bg-white/10 rounded-full">
               <Star size={40} className="text-[#C5A059]" />
             </div>
-            <h2 className="text-2xl font-serif tracking-widest uppercase">Lunara Privilege</h2>
+<h2 className="text-2xl font-serif tracking-widest uppercase">Bahmad Privilege</h2>
             <p className="text-[10px] font-light tracking-[0.2em] opacity-70">EXCLUSIVE ACCESS & REWARDS</p>
           </div>
           <div className="p-10 space-y-8">
             <div className="space-y-2">
-              <h3 className="text-xl font-serif text-stone-800">Welcome to Lunara Aromatics</h3>
+              <h3 className="text-xl font-serif text-stone-800">Welcome to Bahmad Perfumes</h3>
               <p className="text-xs text-stone-500 leading-relaxed">Choose a way to join us and start enjoying luxirious smell at an affordable price.</p>
             </div>
             <div className="space-y-4">

@@ -173,7 +173,7 @@ export default function Home() {
       <footer className="bg-[#1a1510] text-stone-300 py-20 border-t border-[#C5A059]/20">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
           <div className="space-y-6">
-            <h2 className="text-3xl font-serif text-white italic">Lunara<span className="text-[#C5A059]">.</span></h2>
+            <h2 className="text-3xl font-serif text-white italic">Bahmad<span className="text-[#C5A059]">.</span></h2>
             <p className="text-xs">{t.description}</p>
           </div>
           <div className="space-y-6">
@@ -196,7 +196,7 @@ export default function Home() {
           </div>
         </div>
         <div className="container mx-auto px-6 mt-16 pt-8 border-t border-stone-800 text-center">
-          <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">© 2026 LUNARA AROMATICS | DESIGNED FOR LUXURY</p>
+          <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">© 2026 BAHMAD PERFUMES | LUXURY IN EVERY DROP</p>
         </div>
       </footer>
     </main>

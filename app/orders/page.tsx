@@ -70,7 +70,7 @@ export default function UserOrders() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="animate-pulse font-serif text-[#5B2C6F] tracking-[0.3em] uppercase text-sm">{t.lunaraLoading}</div>
+      <div className="animate-pulse font-serif text-[#5B2C6F] tracking-[0.3em] uppercase text-sm">{t.BahmadLoading}</div>
     </div>
   );
 

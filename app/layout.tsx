@@ -20,11 +20,11 @@ const lato = Lato({
 // --- SEO & SOCIAL MEDIA METADATA ---
 export const metadata: Metadata = {
   title: {
-    default: "Lunara Aromatics | Pure Elegance",
-    template: "%s | Lunara Aromatics"
+    default: "Bahmad Perfumes | Luxury in Every Drop",
+    template: "%s | Bahmad Perfumes"
   },
   description: "Tanzania's premier destination for luxury aromatics. Pata manukato bora, udi, na bidhaa za kujipenda kwa bei nafuu.",
-  keywords: ["perfume Tanzania", "manukato", "udi", "luxury scents Dar es Salaam", "Lunara"],
+  keywords: ["perfume Tanzania", "manukato", "udi", "luxury scents Dar es Salaam", "Bahmad"],
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon.png", // Kwa ajili ya iPhone bookmarks
@@ -32,16 +32,16 @@ export const metadata: Metadata = {
   
   // WhatsApp, Facebook & Instagram Preview (Open Graph)
   openGraph: {
-    title: "Lunara Aromatics | Experience Pure Elegance",
+    title: "Bahmad Perfumes| Luxury in Every Drop",
     description: "Elevate your lifestyle with our curated luxury scents. Pata punguzo la 10% kwenye oda yako ya kwanza.",
-    url: "https://www.lunara.co.tz", // Badilisha na domain yako utakayohost
-    siteName: "Lunara Aromatics",
+    url: "https://www.bahmad.com", // Badilisha na domain yako utakayohost
+    siteName: "Bahmad Perfumes",
     images: [
       {
         url: "/og-image.jpg", // Hakikisha picha hii ipo kwenye folder la public
         width: 1200,
         height: 630,
-        alt: "Lunara Aromatics Luxury Collection",
+        alt: "Bahmad Perfumes Luxury Collection",
       },
     ],
     locale: "en_US",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   // Twitter/X Preview
   twitter: {
     card: "summary_large_image",
-    title: "Lunara Aromatics",
+    title: "Bahmad Perfumes",
     description: "Luxury Fragrances & Home Scents in Tanzania",
     images: ["/og-image.jpg"],
   },

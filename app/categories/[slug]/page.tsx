@@ -56,7 +56,7 @@ export default function CategoryProducts({ params }: { params: Promise<{ slug: s
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-pulse text-stone-300 font-serif italic tracking-widest">
-              loading Lunara products...
+              loadingBahmad  products...
             </div>
           </div>
         ) : products.length > 0 ? (

@@ -15,13 +15,13 @@ export function LanguageProvider({ children, initialLang }: { children: React.Re
 
   // Hii inasaidia kukumbuka lugha mteja aliyochagua hata akirefresh page
   useEffect(() => {
-    const savedLang = localStorage.getItem("lunara_lang") as Language;
+    const savedLang = localStorage.getItem("bahmad_lang") as Language;
     if (savedLang) setLang(savedLang);
   }, []);
 
   const handleSetLang = (newLang: Language) => {
     setLang(newLang);
-    localStorage.setItem("lunara_lang", newLang);
+localStorage.setItem("bahmad_lang", newLang);
   };
 
   // persist user preference server-side (fire-and-forget)

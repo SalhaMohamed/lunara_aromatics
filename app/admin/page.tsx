@@ -213,7 +213,7 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen bg-[#FCFCFC] font-sans text-stone-800">
       {/* SIDEBAR */}
       <aside className="w-64 bg-[#5B2C6F] text-white p-6 space-y-8 hidden md:block sticky top-0 h-screen">
-        <h2 className="text-2xl font-serif font-bold italic text-center">Lunara Admin</h2>
+        <h2 className="text-2xl font-serif font-bold italic text-center">Bahmad Admin</h2>
         <nav className="space-y-2 text-sm font-medium">
           <NavItem active={false} onClick={() => router.push('/')} icon={<Home size={18}/>} label="Home" />
           <NavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<BarChart3 size={18}/>} label="Overview" />
