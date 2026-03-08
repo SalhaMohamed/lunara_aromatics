@@ -63,8 +63,8 @@ export default function DiscountModal() {
           </div>
           <div className="p-10 space-y-8">
             <div className="space-y-2">
-              <h3 className="text-xl font-serif text-stone-800">Karibu Lunara Aromatics</h3>
-              <p className="text-xs text-stone-500 leading-relaxed">Chagua njia yako ya kujiunga na uanze kufurahia harufu za anasa kwa bei nafuu.</p>
+              <h3 className="text-xl font-serif text-stone-800">Welcome to Lunara Aromatics</h3>
+              <p className="text-xs text-stone-500 leading-relaxed">Choose a way to join us and start enjoying luxirious smell at an affordable price.</p>
             </div>
             <div className="space-y-4">
               <Link href="/register" onClick={closeMenu} className="group flex items-center justify-between p-4 border border-stone-100 hover:border-[#C5A059] transition rounded-sm">

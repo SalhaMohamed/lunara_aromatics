@@ -4,14 +4,14 @@ import { Search, ShoppingBag, Globe, X, ArrowRight, User, LogOut, LayoutDashboar
 import { useCart } from "@/app/context/CartContext";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { translations } from "@/app/data/translations";
-import { allProducts } from "@/app/data/products";
 import Link from "next/link";
 import Image from "next/image";
 import DiscountModal from "@/components/DiscountModal";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-const supabase = createClient();
 import { toast } from "sonner";
+
+const supabase = createClient();
 
 export default function Navbar() {
   const { cartCount } = useCart();
@@ -22,106 +22,70 @@ export default function Navbar() {
   const router = useRouter();
   
   const [user, setUser] = useState<any>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [hasOrderUpdate, setHasOrderUpdate] = useState(false);
   const ADMIN_EMAIL = "admin@lunara.com"; 
 
   const t = translations[lang];
 
-  // 1. Kazi ya kucheki oda (Inatumika mara ya kwanza mteja anapoingia)
-  const checkOrderNotifications = async (userId: string) => {
-    const { data } = await supabase
-      .from("orders")
-      .select("status")
-      .eq("user_id", userId)
-      .in("status", ["processing", "shipped", "delivered", "cancelled", "completed"]);
+  // 1. REAL-TIME SEARCH LOGIC
+  useEffect(() => {
+    const fetchQuickSearch = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
 
-    if (data && data.length > 0) {
-      setHasOrderUpdate(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, price, image_url, category')
+        .ilike('name', `%${searchQuery}%`)
+        .limit(5);
+
+      if (!error && data) {
+        setSearchResults(data);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchQuickSearch, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && searchQuery.trim() !== "") {
+      setIsSearchOpen(false);
+      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery("");
     }
   };
 
+  // 2. AUTH LOGIC
   useEffect(() => {
-    // Pata User wa sasa
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       if (user) {
-        checkOrderNotifications(user.id);
-        setupRealtimeSubscription(user.id);
+        try {
+          const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+          if (profile?.full_name) setDisplayName(profile.full_name);
+        } catch (e) {}
       }
     };
     getUser();
 
-    // 2. REALTIME SUBSCRIPTION NDANI YA NAVBAR
-    // Hii inamfanya mteja aone dot nyekundu hata akiwa kwenye Home Page
-    let channelRef: any = null;
-    const setupRealtimeSubscription = (userId: string) => {
-      const chan = supabase
-        .channel(`navbar_updates_${userId}`)
-        .on(
-          'postgres_changes',
-          { 
-            event: 'UPDATE', 
-            schema: 'public', 
-            table: 'orders',
-            filter: `user_id=eq.${userId}` 
-          },
-          (payload: any) => {
-            // Show notification/badge when an order's status changes
-            if (payload.new && payload.old && payload.new.status !== payload.old.status) {
-              setHasOrderUpdate(true);
-              toast.info("Oda yako imefanyiwa mabadiliko! Angalia 'My Orders'.", {
-                icon: <Package className="text-[#5B2C6F]" size={16} />,
-              });
-            }
-          }
-        )
-        .subscribe();
-
-      channelRef = chan;
-      return chan;
-    };
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event: any, session: any) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        checkOrderNotifications(currentUser.id);
-        setupRealtimeSubscription(currentUser.id);
-      }
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
     });
 
     return () => {
-      // Cleanup auth listener
-      try {
-        authListener.subscription.unsubscribe();
-      } catch (e) {
-        // ignore
-      }
-      // Remove realtime channel if created
-      try {
-        if (channelRef) supabase.removeChannel(channelRef);
-      } catch (e) {
-        // ignore
-      }
+      authListener.subscription.unsubscribe();
     };
   }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setSearchResults([]);
-      return;
-    }
-    const filtered = allProducts.filter(product =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setSearchResults(filtered.slice(0, 5));
-  }, [searchQuery]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    toast.success(lang === "en" ? "Logged out" : "Umetoka");
     router.push("/login");
   };
 
@@ -129,11 +93,11 @@ export default function Navbar() {
     <>
       <DiscountModal />
 
-      <nav className="sticky top-0 z-[100] bg-white border-b border-gray-100 shadow-sm">
+      <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* LOGO SECTION */}
-          <Link href="/" className="relative w-40 md:w-60 h-12 md:h-18 flex items-center justify-start group">
+          <Link href="/" className="relative w-40 md:w-52 h-10 flex items-center group" title={t.home || "Home"}>
             <Image 
               src="/logo.png" 
               alt="Lunara Aromatics" 
@@ -148,67 +112,76 @@ export default function Navbar() {
             <Link href="/" className="hover:text-[#5B2C6F] transition">{t.home}</Link>
             <Link href="/categories" className="hover:text-[#5B2C6F] transition">{t.categories}</Link>
             <Link href="/about" className="hover:text-[#5B2C6F] transition">{t.about}</Link>
-            <Link href="/contact" className="hover:text-[#5B2C6F] transition">{t.contact}</Link>
             
             {user?.email === ADMIN_EMAIL && (
-              <Link href="/admin" className="text-[#C5A059] flex items-center gap-1 border-b border-[#C5A059]">
-                <LayoutDashboard size={12} /> Dashboard
+              <Link href="/admin" className="text-[#C5A059] flex items-center gap-1 border-b border-[#C5A059]" title="Admin Dashboard">
+                <LayoutDashboard size={12} /> {lang === "en" ? "Dashboard" : "Dashibodi"}
               </Link>
             )}
           </div>
 
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-3 md:gap-5">
-            <button onClick={() => setIsSearchOpen(true)} className="hover:text-[#C5A059] transition">
+            {/* SEARCH */}
+            <button 
+              onClick={() => setIsSearchOpen(true)} 
+              className="hover:text-[#C5A059] transition p-2"
+              title={lang === "en" ? "Search Products" : "Tafuta Bidhaa"}
+            >
               <Search size={20} />
             </button>
 
+            {/* LANGUAGE TOGGLE */}
             <button 
               onClick={() => setLang(lang === "en" ? "sw" : "en")}
               className="hidden sm:flex items-center gap-1 text-[10px] font-bold border border-stone-200 px-2 py-1 rounded hover:bg-stone-50 transition"
+              title={lang === "en" ? "Switch to Swahili" : "Badili kwenda Kiingereza"}
             >
               <Globe size={12} />
               {lang === "en" ? "EN" : "SW"}
             </button>
 
             {!user ? (
-              <Link href="/login" className="hover:text-[#5B2C6F] transition">
+              /* LOGIN */
+              <Link 
+                href="/login" 
+                className="hover:text-[#5B2C6F] transition p-2"
+                title={lang === "en" ? "Login / Register" : "Ingia / Jisajili"}
+              >
                 <User size={22} />
               </Link>
             ) : (
               <div className="flex items-center gap-4">
+                {/* ORDERS */}
                 <Link 
                   href="/orders" 
-                  onClick={() => setHasOrderUpdate(false)}
                   className="relative flex items-center gap-1 text-[10px] font-bold text-stone-600 hover:text-[#5B2C6F] transition border-r pr-4 border-stone-100"
+                  title={lang === "en" ? "My Orders" : "Oda Zangu"}
                 >
                   <Package size={16} />
-                  <span className="hidden lg:inline uppercase tracking-widest">Orders</span>
-                  {hasOrderUpdate && (
-                    <span className="absolute -top-1 right-2 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </span>
-                  )}
+                  {hasOrderUpdate && <span className="absolute top-0 right-3 h-2 w-2 rounded-full bg-red-500 border-2 border-white animate-pulse"></span>}
                 </Link>
 
-                <div className="hidden md:flex flex-col items-end">
-                  <span className="text-[8px] text-stone-400 uppercase font-black tracking-widest">Account</span>
-                  <span className="text-[10px] font-bold text-[#5B2C6F] truncate max-w-[80px] uppercase">{user.email.split('@')[0]}</span>
-                </div>
+                {/* LOGOUT */}
                 <button 
-                  onClick={handleLogout}
+                  onClick={handleLogout} 
                   className="text-stone-300 hover:text-red-500 transition"
+                  title={lang === "en" ? "Logout" : "Ondoka"}
                 >
                   <LogOut size={18} />
                 </button>
               </div>
             )}
 
-            <Link href="/cart" className="relative group">
+            {/* CART */}
+            <Link 
+              href="/cart" 
+              className="relative group p-2"
+              title={lang === "en" ? `Cart (${cartCount} items)` : `Kapu (Bidhaa ${cartCount})`}
+            >
               <ShoppingBag size={22} className="group-hover:text-[#5B2C6F] transition" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#C5A059] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute top-1 right-0 bg-[#C5A059] text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm">
                   {cartCount}
                 </span>
               )}
@@ -216,46 +189,54 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* SEARCH OVERLAY - Inabaki vilevile */}
+        {/* SEARCH OVERLAY */}
         {isSearchOpen && (
-          <div className="absolute top-0 left-0 w-full bg-white shadow-2xl animate-in slide-in-from-top duration-300 z-[110]">
-            <div className="container mx-auto px-6 py-8">
-              <div className="flex items-center border-b-2 border-[#5B2C6F] pb-2">
+          <div className="absolute top-0 left-0 w-full bg-white shadow-2xl animate-in slide-in-from-top duration-300 z-[110] border-b border-stone-100">
+            <div className="container mx-auto px-6 py-10">
+              <div className="flex items-center border-b-2 border-[#5B2C6F] pb-4">
                 <input 
                   autoFocus
                   type="text" 
-                  placeholder={t.search}
-                  className="w-full text-2xl font-serif outline-none placeholder:text-stone-200 uppercase tracking-tighter"
+                  placeholder={lang === "en" ? "What are you looking for?" : "Unatafuta nini leo?"}
+                  className="w-full text-2xl md:text-4xl font-serif outline-none placeholder:text-stone-200 uppercase"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
                 />
-                <button onClick={() => {setIsSearchOpen(false); setSearchQuery("");}}>
-                  <X size={28} className="text-gray-400 hover:text-black" />
+                <button 
+                  onClick={() => {setIsSearchOpen(false); setSearchQuery("");}}
+                  title={lang === "en" ? "Close" : "Funga"}
+                >
+                  <X size={32} className="text-stone-300 hover:text-black transition" />
                 </button>
               </div>
 
               {searchQuery && (
-                <div className="mt-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[60vh] overflow-y-auto pb-6">
                   {searchResults.length > 0 ? (
                     searchResults.map(product => (
                       <Link 
                         key={product.id} 
                         href={`/shop/${product.id}`}
                         onClick={() => {setIsSearchOpen(false); setSearchQuery("");}}
-                        className="flex items-center gap-4 p-2 hover:bg-gray-50 rounded-md transition"
+                        className="flex items-center gap-4 p-4 bg-stone-50 hover:bg-stone-100 rounded-xl transition group"
+                        title={`${product.name} - TZS ${product.price.toLocaleString()}`}
                       >
-                        <div className="relative w-16 h-16 shrink-0 bg-stone-50">
-                          <Image src={product.image} alt={product.name} fill className="object-contain p-1" />
+                        <div className="relative w-20 h-20 shrink-0 bg-white rounded-lg overflow-hidden border border-stone-100">
+                          <Image src={product.image_url} alt={product.name} fill className="object-contain p-2" />
                         </div>
-                        <div className="flex-grow">
-                          <h4 className="text-xs font-bold text-stone-800 uppercase tracking-widest">{product.name}</h4>
-                          <p className="text-[10px] text-[#C5A059] font-black">TZS {product.price.toLocaleString()}</p>
+                        <div>
+                          <h4 className="text-[10px] font-bold text-[#C5A059] uppercase tracking-widest">{product.category}</h4>
+                          <h3 className="text-sm font-serif text-stone-800 uppercase leading-tight">{product.name}</h3>
+                          <p className="text-xs font-bold text-[#5B2C6F] mt-1">TZS {product.price.toLocaleString()}</p>
                         </div>
-                        <ArrowRight size={14} className="text-stone-200" />
+                        <ArrowRight size={14} className="ml-auto text-stone-300 group-hover:text-[#5B2C6F] transition" />
                       </Link>
                     ))
                   ) : (
-                    <p className="text-xs text-gray-400 uppercase tracking-widest py-4">{t.noResults}</p>
+                    <p className="col-span-full text-center py-10 font-serif italic text-stone-400">
+                      {lang === "en" ? `No results for "${searchQuery}"` : `Hakuna matokeo kwa "${searchQuery}"`}
+                    </p>
                   )}
                 </div>
               )}

@@ -27,6 +27,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [cartItems]);
 
+  // MPYA: Function ya kuangalia kama bei ya jumlaitumike
+  // Hii inasaidia kujua bei gani itumike kwa item moja kulingana na quantity yake
+  const getDynamicPrice = (item: any) => {
+    const minQty = item.wholesale_min_qty || 6; // Default ni 6 kama haijawekwa
+    // Kama item ina bei ya jumla NA quantity imefika kiwango
+    if (item.wholesale_price && item.quantity >= minQty) {
+      return item.wholesale_price;
+    }
+    return item.price; // Vinginevyo tumia bei ya kawaida
+  };
+
   const addToCart = (product: any) => {
     setCartItems((prev) => {
       const exists = prev.find((item) => item.id === product.id && item.size === product.size);
@@ -55,7 +66,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  // MPYA: Function ya kufuta kila kitu kwa mkupuo mmoja
+  // Function ya kufuta kila kitu kwa mkupuo mmoja
   const clearCart = () => {
     setCartItems([]);
     if (typeof window !== 'undefined') {
@@ -64,7 +75,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  
+  // MODIFIED: Subtotal sasa inatumia bei ya jumla inapobidi
+  const subtotal = cartItems.reduce((acc, item) => {
+    const activePrice = getDynamicPrice(item); // Pata bei sahihi (Jumla au Reja reja)
+    return acc + (activePrice * item.quantity);
+  }, 0);
 
   return (
     <CartContext.Provider value={{ 
@@ -74,8 +90,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       updateQuantity, 
       cartCount, 
       subtotal, 
-      setCartItems, // Tumeongeza hii kwa usalama
-      clearCart     // Tumeongeza hii ili kuitumia kule kwenye Cart Page
+      setCartItems, 
+      clearCart,
+      getDynamicPrice // Tume-expose hii ili uitumie kwenye Cart Page kuonyesha kama offer imekubali
     }}>
       {children}
     </CartContext.Provider>
@@ -94,7 +111,8 @@ export const useCart = () => {
       removeFromCart: () => {},
       updateQuantity: () => {},
       setCartItems: () => {},
-      clearCart: () => {} // Tumeongeza hapa pia
+      clearCart: () => {},
+      getDynamicPrice: () => 0 // Default return
     };
   }
   return context;

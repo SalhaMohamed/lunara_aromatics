@@ -13,11 +13,11 @@ export default function ContactPage() {
           <div className="space-y-6 text-stone-700">
             <div>
               <h3 className="font-bold text-[#C5A059] uppercase text-xs tracking-widest mb-2">Address</h3>
-              <p>Mtaa gani, Tanzania</p>
+              <p>Kariakoo Mafia Street& Bonde, Dar-es-salaam, Tanzania</p>
             </div>
             <div>
               <h3 className="font-bold text-[#C5A059] uppercase text-xs tracking-widest mb-2">Email</h3>
-              <p>info@lunara-aromatics.com</p>
+              <p>+255777088040 or +255688339466</p>
             </div>
           </div>
           <form className="space-y-4">

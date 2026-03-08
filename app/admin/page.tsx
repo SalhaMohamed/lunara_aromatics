@@ -3,8 +3,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { 
   Plus, Package, BarChart3, X, Loader2, Trash2, Upload, 
-  ShoppingCart, User, Edit3, Phone, Search, Tag, Wallet, CheckCircle2, Clock
+  ShoppingCart, User, Edit3, Phone, Search, Wallet, Home, LogOut
 } from "lucide-react";
+import { useRouter } from 'next/navigation';
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner"; 
 import Image from "next/image";
@@ -25,6 +26,7 @@ function NavItem({ active, onClick, icon, label }: any) {
 
 export default function AdminDashboard() {
   const supabase = createClient();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
   const [orderFilter, setOrderFilter] = useState("active"); 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,9 +39,11 @@ export default function AdminDashboard() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // MODIFIED: Added wholesale fields
   const [formData, setFormData] = useState({
-    name: "", price: "", category: "perfumes", description: "",
-    image_url: "", size1: "", size2: "", size3: ""
+    name: "", price: "", category: "perfumes", gender: "unisex", description: "",
+    image_url: "", size1: "", size2: "", size3: "",
+    wholesale_price: "", wholesale_min_qty: "6"
   });
 
   // Fetching Data from Supabase
@@ -57,7 +61,40 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  // --- HAPA NDIPO NIMEPADILISHA (REALTIME UPDATES) ---
+  useEffect(() => {
+    // 1. Vuta data mara ya kwanza
+    fetchData();
+
+    // 2. Washa "Sikio" la kusikiliza mabadiliko (Orders & Products)
+    const channel = supabase
+      .channel('admin_dashboard_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'orders' },
+        (payload) => {
+          // Pale mabadiliko yanapotokea kwenye Orders
+          if (payload.eventType === 'INSERT') {
+            toast.info("🔔 New Order Received!", { description: "Refreshing dashboard..." });
+          } else if (payload.eventType === 'UPDATE') {
+             // Hatupigi kelele sana kwenye update ili tusiwe kero, tunarefresh tu
+          }
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' }, // Pia tunasikiliza products
+        () => fetchData()
+      )
+      .subscribe();
+
+    // 3. Zima channel ukiondoka kwenye page
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+  // --- MWISHO WA MABADILIKO ---
 
   // Business Stats Logic
   const stats = useMemo(() => {
@@ -86,10 +123,20 @@ export default function AdminDashboard() {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
     if (error) {
-      toast.error("Imeshindwa kubadilisha hali!");
+      toast.error("Fail to change status!");
     } else {
-      toast.success(`Hali ya oda imebadilishwa kuwa: ${newStatus.toUpperCase()}`);
-      fetchData();
+      toast.success(`The status changed to : ${newStatus.toUpperCase()}`);
+      // Hatuhitaji kuita fetchData() hapa kwa sababu Realtime itafanya kazi hiyo automatically
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("logout successed");
+      router.push('/login');
+    } catch (err: any) {
+      toast.error("Fail to logout");
     }
   };
 
@@ -105,19 +152,19 @@ export default function AdminDashboard() {
 
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       setFormData({ ...formData, image_url: data.publicUrl });
-      toast.success("Picha imepakiwa kikamilifu!");
+      toast.success("Picture uploaded seccessfully!");
     } catch (error: any) {
-      toast.error("Picha imegoma: " + error.message);
+      toast.error("Fail to upload the picture: " + error.message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Je, una uhakika unataka kufuta bidhaa: ${name}?`)) {
+    if (confirm(`Do you really want to delete the product?: ${name}?`)) {
       const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) toast.error("Imeshindwa kufuta!");
-      else { toast.success("Bidhaa imefutwa"); fetchData(); }
+      if (error) toast.error("Fail to delete the product!");
+      else { toast.success("Product deleted!"); /* fetchData() itaitwa na realtime */ }
     }
   };
 
@@ -129,13 +176,17 @@ export default function AdminDashboard() {
       .map(s => s.trim())
       .filter(s => s !== "");
 
+    // MODIFIED: Payload now includes wholesale data
     const payload = { 
       name: formData.name, 
       price: parseFloat(formData.price), 
       category: formData.category,
+      gender: formData.gender,
       description: formData.description, 
       image_url: formData.image_url, 
-      sizes: sizesArray 
+      sizes: sizesArray,
+      wholesale_price: formData.wholesale_price ? parseFloat(formData.wholesale_price) : null,
+      wholesale_min_qty: formData.wholesale_min_qty ? parseInt(formData.wholesale_min_qty) : 6
     };
 
     const { error } = editMode && currentId 
@@ -145,11 +196,15 @@ export default function AdminDashboard() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(editMode ? "Bidhaa imerekebishwa!" : "Bidhaa mpya imeongezwa!");
+      toast.success(editMode ? "Product has been updated!" : "New product is added!");
       setIsModalOpen(false);
-      setFormData({ name: "", price: "", category: "perfumes", description: "", image_url: "", size1: "", size2: "", size3: "" });
+      setFormData({ 
+        name: "", price: "", category: "perfumes", gender: "unisex", description: "", 
+        image_url: "", size1: "", size2: "", size3: "", 
+        wholesale_price: "", wholesale_min_qty: "6" 
+      });
       setEditMode(false);
-      fetchData();
+      // fetchData() not needed here, realtime will catch it
     }
     setLoading(false);
   };
@@ -160,10 +215,14 @@ export default function AdminDashboard() {
       <aside className="w-64 bg-[#5B2C6F] text-white p-6 space-y-8 hidden md:block sticky top-0 h-screen">
         <h2 className="text-2xl font-serif font-bold italic text-center">Lunara Admin</h2>
         <nav className="space-y-2 text-sm font-medium">
+          <NavItem active={false} onClick={() => router.push('/')} icon={<Home size={18}/>} label="Home" />
           <NavItem active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<BarChart3 size={18}/>} label="Overview" />
           <NavItem active={activeTab === 'products'} onClick={() => setActiveTab('products')} icon={<Package size={18}/>} label="Inventory" />
           <NavItem active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} icon={<ShoppingCart size={18}/>} label="Orders" />
           <NavItem active={activeTab === 'customers'} onClick={() => setActiveTab('customers')} icon={<User size={18}/>} label="Customers" />
+          <div className="pt-4">
+            <NavItem active={false} onClick={handleAdminLogout} icon={<LogOut size={18}/>} label="Logout" />
+          </div>
         </nav>
       </aside>
 
@@ -204,7 +263,15 @@ export default function AdminDashboard() {
             <header className="flex justify-between items-center mb-8">
               <h1 className="text-2xl font-bold font-serif text-[#5B2C6F]">Inventory</h1>
               <button 
-                onClick={() => { setEditMode(false); setIsModalOpen(true); }} 
+                onClick={() => { 
+                  setFormData({ 
+                    name: "", price: "", category: "perfumes", gender: "unisex", description: "", 
+                    image_url: "", size1: "", size2: "", size3: "",
+                    wholesale_price: "", wholesale_min_qty: "6"
+                  });
+                  setEditMode(false); 
+                  setIsModalOpen(true); 
+                }} 
                 className="bg-[#C5A059] text-white px-5 py-2.5 rounded-sm text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
               >
                 <Plus size={16}/> Add Product
@@ -215,54 +282,71 @@ export default function AdminDashboard() {
                   <thead className="bg-stone-50 text-[9px] tracking-widest uppercase text-stone-400">
                     <tr>
                       <th className="p-4">Product</th>
-                      <th className="p-4">Price</th>
-                      <th className="p-4">Category</th>
+                      <th className="p-4">Retail Price</th>
+                      <th className="p-4">Wholesale</th>
                       <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-50">
-                     {products.map(p => (
-                       <tr key={p.id} className="text-sm">
-                         <td className="p-4 font-medium uppercase text-xs tracking-tighter">{p.name}</td>
-                         <td className="p-4 font-mono">TZS {p.price.toLocaleString()}</td>
-                         <td className="p-4 text-xs text-stone-500 uppercase">{p.category}</td>
-                         <td className="p-4 text-right space-x-4">
-                             <button onClick={() => { 
+                      {products.map(p => (
+                        <tr key={p.id} className="text-sm">
+                          <td className="p-4 font-medium uppercase text-xs tracking-tighter">
+                            <div className="flex items-center gap-3">
+                              {p.image_url && <div className="w-8 h-8 relative bg-stone-50 border rounded-sm overflow-hidden"><Image src={p.image_url} alt="" fill className="object-contain" /></div>}
+                              <div>
+                                <p className="font-bold">{p.name}</p>
+                                <p className="text-[8px] text-stone-400 uppercase tracking-widest">{p.category} • {p.gender}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-4 font-mono">TZS {p.price.toLocaleString()}</td>
+                          <td className="p-4">
+                            {p.wholesale_price ? (
+                              <div className="text-[10px] uppercase font-black text-[#C5A059]">
+                                TZS {p.wholesale_price.toLocaleString()} <span className="text-stone-300 ml-1">({p.wholesale_min_qty}+ pcs)</span>
+                              </div>
+                            ) : (
+                              <span className="text-[9px] text-stone-300 uppercase">Not Set</span>
+                            )}
+                          </td>
+                          <td className="p-4 text-right space-x-4">
+                              <button onClick={() => { 
                                 setEditMode(true); 
                                 setCurrentId(p.id);
                                 setFormData({
-                                  name: p.name, price: p.price, category: p.category, description: p.description,
-                                  image_url: p.image_url, size1: p.sizes?.[0]||"", size2: p.sizes?.[1]||"", size3: p.sizes?.[2]||""
+                                  name: p.name, price: p.price, category: p.category, gender: p.gender || "unisex", description: p.description,
+                                  image_url: p.image_url, size1: p.sizes?.[0]||"", size2: p.sizes?.[1]||"", size3: p.sizes?.[2]||"",
+                                  wholesale_price: p.wholesale_price || "", wholesale_min_qty: p.wholesale_min_qty || "6"
                                 });
                                 setIsModalOpen(true);
-                             }} className="text-stone-300 hover:text-blue-500"><Edit3 size={16}/></button>
-                             <button onClick={() => handleDelete(p.id, p.name)} className="text-stone-300 hover:text-red-500"><Trash2 size={16}/></button>
-                         </td>
-                       </tr>
-                     ))}
+                              }} className="text-stone-300 hover:text-blue-500"><Edit3 size={16}/></button>
+                              <button onClick={() => handleDelete(p.id, p.name)} className="text-stone-300 hover:text-red-500"><Trash2 size={16}/></button>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
             </div>
           </div>
         )}
 
-        {/* CUSTOMERS SECTION */}
+        {/* CUSTOMERS */}
         {activeTab === "customers" && (
           <div className="animate-in fade-in">
             <header className="flex justify-between items-center mb-8">
-               <h1 className="text-2xl font-bold font-serif text-[#5B2C6F]">Customer Directory</h1>
-               <div className="relative">
-                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300" size={14} />
-                 <input 
+                <h1 className="text-2xl font-bold font-serif text-[#5B2C6F]">Customer Directory</h1>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-300" size={14} />
+                  <input 
                     type="text" 
                     placeholder="Search customer..." 
                     className="pl-10 pr-4 py-2 border rounded-sm text-xs outline-none focus:border-[#C5A059]" 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                 />
-               </div>
+                  />
+                </div>
             </header>
             <div className="bg-white border border-stone-100 rounded-sm">
-               <table className="w-full text-left">
+                <table className="w-full text-left">
                   <thead className="bg-stone-50 text-[9px] tracking-widest uppercase text-stone-400 border-b">
                     <tr>
                       <th className="p-4">Name</th>
@@ -294,12 +378,12 @@ export default function AdminDashboard() {
                       </tr>
                     ))}
                   </tbody>
-               </table>
+                </table>
             </div>
           </div>
         )}
 
-        {/* ORDERS SECTION */}
+        {/* ORDERS */}
         {activeTab === "orders" && (
           <div className="animate-in fade-in">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -339,7 +423,7 @@ export default function AdminDashboard() {
                               <Phone size={10} /> {order.customer_phone || "No phone"}
                             </a>
                             <span className="text-stone-200 text-[10px]">|</span>
-                            <span className="text-[10px] text-stone-400 font-mono">ID: #{order.id.slice(0,8)}</span>
+                            <span className="text-[10px] text-stone-400 font-mono">ID: #{order.order_number || order.id.slice(0,8)}</span>
                           </div>
                         </div>
                       </div>
@@ -392,52 +476,81 @@ export default function AdminDashboard() {
               <button onClick={() => setIsModalOpen(false)} className="hover:rotate-90 transition-transform"><X size={20}/></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-               <div>
-                  <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Product Name</label>
-                  <input type="text" required className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
-               </div>
-               <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Price (TZS)</label>
-                    <input type="number" required className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} />
-                  </div>
+                <div>
+                   <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Product Name</label>
+                   <input type="text" required className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Category</label>
-                    <select className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                    <select className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm uppercase font-bold text-[10px]" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
                       <option value="perfumes">Perfumes</option>
                       <option value="soaps-bath">Soaps & Bath</option>
+                      <option value="lotions-oils">Lotions & Oils</option>
+                      <option value="home-fragrance">Home fragrance</option>
                     </select>
                   </div>
-               </div>
-               <div>
-                  <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Available Sizes</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <input type="text" placeholder="e.g 50ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size1} onChange={(e) => setFormData({...formData, size1: e.target.value})} />
-                    <input type="text" placeholder="e.g 100ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size2} onChange={(e) => setFormData({...formData, size2: e.target.value})} />
-                    <input type="text" placeholder="e.g 150ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size3} onChange={(e) => setFormData({...formData, size3: e.target.value})} />
+                  <div>
+                    <label className="text-[9px] font-bold uppercase text-[#C5A059] block mb-1">Target Gender</label>
+                    <select className="w-full p-2.5 border border-[#C5A059]/30 bg-stone-50 outline-none text-sm uppercase font-bold text-[10px]" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+                      <option value="unisex">Unisex</option>
+                      <option value="male">For Him (Men)</option>
+                      <option value="female">For Her (Women)</option>
+                    </select>
                   </div>
-               </div>
-               <div>
-                  <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Product Image</label>
-                  <input type="text" placeholder="Image URL (Automatic if upload)" className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-xs mb-2" value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} />
-                  <div className="relative border-2 border-dashed border-stone-100 p-4 text-center hover:bg-stone-50 transition cursor-pointer">
-                    <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                    <div className="flex flex-col items-center gap-1">
-                      <Upload size={16} className="text-stone-300"/>
-                      <span className="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">
-                        {uploading ? "Uploading..." : "Click to Upload Image"}
-                      </span>
+                </div>
+
+                <div className="p-4 bg-stone-50 border border-stone-100 space-y-4">
+                  <p className="text-[8px] font-black uppercase tracking-widest text-[#5B2C6F]">Pricing Strategy</p>
+                  
+                  <div>
+                      <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Retail Price (TZS)</label>
+                      <input type="number" required className="w-full p-2.5 border border-stone-200 bg-white outline-none text-sm font-mono" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} />
+                  </div>
+
+                  {/* WHOLESALE INPUTS */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[9px] font-bold uppercase text-[#C5A059] block mb-1">Wholesale Price</label>
+                      <input type="number" placeholder="Optional" className="w-full p-2.5 border border-stone-200 bg-white outline-none text-sm font-mono" value={formData.wholesale_price} onChange={(e) => setFormData({...formData, wholesale_price: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="text-[9px] font-bold uppercase text-[#C5A059] block mb-1">Min Qty</label>
+                      <input type="number" className="w-full p-2.5 border border-stone-200 bg-white outline-none text-sm font-mono" value={formData.wholesale_min_qty} onChange={(e) => setFormData({...formData, wholesale_min_qty: e.target.value})} />
                     </div>
                   </div>
-               </div>
-               <div>
-                  <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Description</label>
-                  <textarea rows={3} className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
-               </div>
-               <button disabled={loading || uploading} className="w-full bg-[#5B2C6F] text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-[#4A235A] transition-colors flex justify-center items-center gap-2">
-                  {(loading || uploading) && <Loader2 size={14} className="animate-spin" />}
-                  {loading ? "SAVING..." : "SAVE PRODUCT"}
-               </button>
+                </div>
+
+                <div>
+                   <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Available Sizes</label>
+                   <div className="grid grid-cols-3 gap-2">
+                     <input type="text" placeholder="e.g 50ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size1} onChange={(e) => setFormData({...formData, size1: e.target.value})} />
+                     <input type="text" placeholder="e.g 100ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size2} onChange={(e) => setFormData({...formData, size2: e.target.value})} />
+                     <input type="text" placeholder="e.g 150ml" className="p-2 border border-stone-100 text-[10px] outline-none bg-stone-50" value={formData.size3} onChange={(e) => setFormData({...formData, size3: e.target.value})} />
+                   </div>
+                </div>
+                <div>
+                   <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Product Image</label>
+                   <input type="text" placeholder="Image URL (Automatic if upload)" className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-xs mb-2" value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} />
+                   <div className="relative border-2 border-dashed border-stone-100 p-4 text-center hover:bg-stone-50 transition cursor-pointer">
+                     <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                     <div className="flex flex-col items-center gap-1">
+                       <Upload size={16} className="text-stone-300"/>
+                       <span className="text-[9px] font-bold text-stone-400 uppercase tracking-tighter">
+                         {uploading ? "Uploading..." : "Click to Upload Image"}
+                       </span>
+                     </div>
+                   </div>
+                </div>
+                <div>
+                   <label className="text-[9px] font-bold uppercase text-stone-400 block mb-1">Description</label>
+                   <textarea rows={3} className="w-full p-2.5 border border-stone-100 bg-stone-50 outline-none text-sm" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+                </div>
+                <button disabled={loading || uploading} className="w-full bg-[#5B2C6F] text-white py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-[#4A235A] transition-colors flex justify-center items-center gap-2">
+                    {(loading || uploading) && <Loader2 size={14} className="animate-spin" />}
+                    {loading ? "SAVING..." : "SAVE PRODUCT"}
+                </button>
             </form>
           </div>
         </div>

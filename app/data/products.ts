@@ -5,6 +5,7 @@ export interface Product {
   price: number;
   image: string;
   description: string;
+  descriptionSw?: string;
   sizes: string[];
 }
 
@@ -17,6 +18,7 @@ export const allProducts: Product[] = [
     price: 85000,
     image: "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=800&auto=format&fit=crop",
     description: "A luxury long-lasting scent with notes of oud, saffron, and vanilla. Perfect for evening wear and special occasions.",
+    descriptionSw: "Harufu ya kifalme yenye uhai mrefu na ladha za udi, zaharati, na vanilla. Inafaa kwa matumizi ya jioni na hafla maalum.",
     sizes: ["50ml", "100ml"]
   },
   {
@@ -26,6 +28,7 @@ export const allProducts: Product[] = [
     price: 75000,
     image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=800&auto=format&fit=crop",
     description: "A delicate floral scent with a hint of spicy pepper and dark chocolate notes.",
+    descriptionSw: "Harufu laini ya maua yenye mguso wa pilipili ya viungo na ladha ya chokoleti nyeusi.",
     sizes: ["50ml", "100ml"]
   },
 
@@ -37,6 +40,7 @@ export const allProducts: Product[] = [
     price: 15000,
     image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop",
     description: "Handmade organic soap made with 100% pure shea butter and essential oils. Keeps your skin glowing and hydrated.",
+    descriptionSw: "Sabuni ya kikaboni iliyotengenezwa kwa si bila ya uharibifu na mafuta ya shea 100% na mafuta muhimu. Inafanya ngozi yako kung'aa na kuendelea kuwa na unyevu.",
     sizes: ["150g"]
   },
   {
@@ -46,6 +50,7 @@ export const allProducts: Product[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=400&auto=format&fit=crop",
     description: "Exfoliating sea salt scrub with citrus essential oils to remove dead skin and reveal a smooth texture.",
+    descriptionSw: "Kisafishaji cha chumvi ya bahari kwa kupiga seli zilizokufa, chenye mafuta muhimu ya machungwa kwa ngozi laini.",
     sizes: ["250g"]
   },
 
@@ -57,6 +62,7 @@ export const allProducts: Product[] = [
     price: 45000,
     image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=400&auto=format&fit=crop",
     description: "Relaxing body oil infused with French lavender. Absorbs quickly without leaving a greasy residue.",
+    descriptionSw: "Mafuta ya mwili yenye kupumzisha yaliyochanganywa na lavender ya Ufaransa. Yanameng'enywa haraka bila kuacha mafuta.",
     sizes: ["200ml"]
   },
 
@@ -68,6 +74,7 @@ export const allProducts: Product[] = [
     price: 35000,
     image: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?q=80&w=400&auto=format&fit=crop",
     description: "Hand-poured soy wax candle with a rich sandalwood aroma that fills your room with warmth.",
+    descriptionSw: "Sherehe ya shaba ya soya iliyomwagwa kwa mkono yenye harufu ya mwembe inayojaza chumba chako kwa joto.",
     sizes: ["Standard Size"]
   }
 ];

@@ -26,40 +26,57 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!isPasswordStrong(formData.password)) {
-      toast.error("Nenosiri liwe na angalau herufi 6.");
+      toast.error("Password must be atlest 6 letters.");
       return;
     }
 
     setLoading(true);
 
     try {
+      // generate a consistent discount code so we can save the same value to profiles
+      const discountCode = `LUNA-${Math.floor(1000 + Math.random() * 9000)}`;
+
       // 1. Tuma data kwa Supabase Auth
-      // HAPA NDIPO UCHAWI ULIPO: Tunatuma data kwenye 'options'
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
-            full_name: formData.name, // Hii itaenda kwenye raw_user_meta_data
+            full_name: formData.name, // goes to raw_user_meta_data
             phone_number: formData.phone,
-            discount_code: `LUNA-${Math.floor(1000 + Math.random() * 9000)}`
+            discount_code: discountCode
           },
         },
       });
 
       if (error) throw error;
 
+      // If signUp returned a user id immediately, create a profiles row
+      const userId = data?.user?.id;
+      if (userId) {
+        try {
+          await supabase.from('profiles').insert([{
+            id: userId,
+            full_name: formData.name,
+            phone_number: formData.phone,
+            discount_code: discountCode,
+            is_code_used: false
+          }]);
+        } catch (insertErr) {
+          // don't block registration on profile insert failure, but log it
+          console.error('Profile insert error:', insertErr);
+        }
+      }
+
       // 2. Success Feedback
       toast.success(`Karibu Lunara, ${formData.name}!`);
       
       // 3. Redirect au Refresh
-      // Kama unatumia Email Verification, mwambie acheck email.
-      // Kama huna verification (auto-confirm), mpeleke dashboard au login.
       router.push("/login");
 
     } catch (error: any) {
       console.error("Registration Error:", error);
-      toast.error(error.message || "Tatizo limetokea wakati wa kusajili.");
+      toast.error(error.message || "Error during registration .");
     } finally {
       setLoading(false);
     }

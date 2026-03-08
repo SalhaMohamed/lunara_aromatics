@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google"; 
 import "./globals.css";
 import { CartProvider } from "./context/CartContext";
-import { LanguageProvider } from "./context/LanguageContext"; // Tumeongeza hii
+import { LanguageProvider } from "./context/LanguageContext";
+import { createClient } from '@supabase/supabase-js';
 import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({ 
@@ -16,24 +17,73 @@ const lato = Lato({
   variable: '--font-lato'
 });
 
+// --- SEO & SOCIAL MEDIA METADATA ---
 export const metadata: Metadata = {
-  title: "Lunara Aromatics",
-  description: "Experience Pure Elegance",
+  title: {
+    default: "Lunara Aromatics | Pure Elegance",
+    template: "%s | Lunara Aromatics"
+  },
+  description: "Tanzania's premier destination for luxury aromatics. Pata manukato bora, udi, na bidhaa za kujipenda kwa bei nafuu.",
+  keywords: ["perfume Tanzania", "manukato", "udi", "luxury scents Dar es Salaam", "Lunara"],
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png", // Kwa ajili ya iPhone bookmarks
+  },
+  
+  // WhatsApp, Facebook & Instagram Preview (Open Graph)
+  openGraph: {
+    title: "Lunara Aromatics | Experience Pure Elegance",
+    description: "Elevate your lifestyle with our curated luxury scents. Pata punguzo la 10% kwenye oda yako ya kwanza.",
+    url: "https://www.lunara.co.tz", // Badilisha na domain yako utakayohost
+    siteName: "Lunara Aromatics",
+    images: [
+      {
+        url: "/og-image.jpg", // Hakikisha picha hii ipo kwenye folder la public
+        width: 1200,
+        height: 630,
+        alt: "Lunara Aromatics Luxury Collection",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  // Twitter/X Preview
+  twitter: {
+    card: "summary_large_image",
+    title: "Lunara Aromatics",
+    description: "Luxury Fragrances & Home Scents in Tanzania",
+    images: ["/og-image.jpg"],
+  },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // SSR setup kwa ajili ya Supabase
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  let initialLang = 'en';
+
   return (
-    <html lang="en">
+    <html lang={initialLang}>
       <body className={`${playfair.variable} ${lato.variable} font-sans antialiased`}>
         {/* LanguageProvider inafunika kila kitu ili lugha isikike kote */}
-        <LanguageProvider>
+        <LanguageProvider initialLang={initialLang as any}>
           <CartProvider>
             {children}
-            <Toaster position="bottom-right" richColors />
+            {/* Toaster kwa ajili ya alerts nzuri (Mfano: "Item added to cart") */}
+            <Toaster 
+              position="bottom-right" 
+              richColors 
+              expand={false}
+              closeButton
+            />
           </CartProvider>
         </LanguageProvider>
       </body>

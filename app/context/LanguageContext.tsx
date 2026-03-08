@@ -10,8 +10,8 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Language>("en");
+export function LanguageProvider({ children, initialLang }: { children: React.ReactNode; initialLang?: Language }) {
+  const [lang, setLang] = useState<Language>(initialLang ?? "en");
 
   // Hii inasaidia kukumbuka lugha mteja aliyochagua hata akirefresh page
   useEffect(() => {
@@ -24,8 +24,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("lunara_lang", newLang);
   };
 
+  // persist user preference server-side (fire-and-forget)
+  const persistPreference = (newLang: Language) => {
+    try {
+      fetch('/api/language', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: newLang })
+      }).catch(() => {});
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const handleSetLangWithPersist = (newLang: Language) => {
+    handleSetLang(newLang);
+    persistPreference(newLang);
+  };
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang: handleSetLang }}>
+    <LanguageContext.Provider value={{ lang, setLang: handleSetLangWithPersist }}>
       {children}
     </LanguageContext.Provider>
   );
