@@ -9,7 +9,7 @@ const supabase = createClient();
 const initialCategories = [
   { name: "Perfumes", slug: "perfumes", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=400" },
   { name: "Soaps & Bath", slug: "soaps-bath", image: "https://images.unsplash.com/photo-1600857062241-98e5dba7f214?q=80&w=400" },
-  { name: "Lotions & Oils", slug: "lotions-oils", image: "https://images.unsplash.com/photo-1616245100650-671c668b556f?q=80&w=400" },
+  { name: "Lotions & Oils", slug: "lotions-oils", image: "https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=800&auto=400" },
   { name: "Home Fragrance", slug: "home-fragrance", image: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?q=80&w=400" },
 ];
 
