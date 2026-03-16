@@ -6,8 +6,8 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { useTranslation } from "@/app/hooks/useTranslation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
-import { createClient } from "@/lib/supabase/client"; // TUMETUMIA HII MPYA
+import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff, HelpCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
@@ -15,17 +15,17 @@ export default function LoginPage() {
   const t = useTranslation();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get('returnUrl');
 
-  // Initialize Supabase Client
   const supabase = createClient();
 
-  // WEKA EMAIL YAKO YA ADMIN HAPA (Kwa sasa tunatumia hii simple check)
   const ADMIN_EMAIL = "admin@Bahmad.com"; 
 
+  // --- LOGIC YA KUINGIA (LOGIN) ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -36,16 +36,11 @@ export default function LoginPage() {
         password: formData.password,
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       toast.success(lang === 'en' ? "Welcome Back!" : "Karibu Tena!");
-
-      // MUHIMU: Refresh router ili Server Components (kama Navbar) zione session mpya
       router.refresh();
 
-      // LOGIC YA KUELEKEZA (REDIRECT)
       if (data.user?.email === ADMIN_EMAIL) {
         router.push("/admin");
       } else if (returnUrl) {
@@ -55,9 +50,36 @@ export default function LoginPage() {
       }
 
     } catch (error: any) {
-      toast.error(lang === 'en' ? error.message : "Email or password is not correct");
+      toast.error(lang === 'en' ? error.message : "Email au neno la siri si sahihi");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // --- LOGIC YA KUSAHAU PASSWORD (FORGOT PASSWORD) ---
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      toast.error(lang === 'en' ? "Please enter your email address first." : "Tafadhali weka email yako kwanza.");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast.success(
+        lang === 'en' 
+        ? "Password reset link sent to your email!" 
+        : "Link ya kubadili password imetumwa kwenye email yako!"
+      );
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -75,7 +97,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-8">
+          <form onSubmit={handleLogin} className="space-y-6">
             {/* Email Input */}
             <div className="group relative">
               <label className="text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2 group-focus-within:text-[#5B2C6F] transition-colors">
@@ -96,9 +118,20 @@ export default function LoginPage() {
 
             {/* Password Input */}
             <div className="group relative">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-stone-500 block mb-2 group-focus-within:text-[#5B2C6F] transition-colors">
-                {t.password}
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-stone-500 group-focus-within:text-[#5B2C6F] transition-colors">
+                  {t.password}
+                </label>
+                {/* Forgot Password Link */}
+                <button 
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={resetLoading}
+                  className="text-[9px] text-[#C5A059] hover:text-[#5B2C6F] uppercase tracking-tighter font-bold transition-colors disabled:text-stone-300"
+                >
+                  {resetLoading ? "Sending..." : (lang === 'en' ? "Forgot Password?" : "Umesahau Nywila?")}
+                </button>
+              </div>
               <div className="relative border-b border-stone-200 focus-within:border-[#C5A059] transition-colors duration-300">
                 <Lock className="absolute left-0 top-3 text-stone-300 group-focus-within:text-[#5B2C6F] transition-colors" size={18} />
                 <input 
