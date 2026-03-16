@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { Mail, Lock, User, ArrowRight, Loader2, Phone, Eye, EyeOff } from "lucide-react"; 
-import { createClient } from "@/lib/supabase/client"; // IMPORT HII MPYA
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -14,35 +14,35 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   
-  // Initialize Supabase Client for Browser
   const supabase = createClient();
 
-  // Validating Strong Password
   const isPasswordStrong = (pass: string) => {
-    return pass.length >= 6; // Nimepunguza kidogo iwe user friendly, ila unaweza kurudisha 8
+    return pass.length >= 6;
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!isPasswordStrong(formData.password)) {
-      toast.error("Password must be atlest 6 letters.");
+      toast.error("Password must be at least 6 characters.");
       return;
     }
 
     setLoading(true);
 
     try {
-      // generate a consistent discount code so we can save the same value to profiles
+      // Tengeneza discount code hapa
       const discountCode = `LUNA-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      // 1. Tuma data kwa Supabase Auth
+      // 1. Tuma data kwa Supabase Auth pekee.
+      // Data nyingine (name, phone, code) zinatumwa kama 'metadata'.
+      // Trigger uliyoweka kule SQL Editor itazichukua hizi na kuzipeleka kwenye profiles table moja kwa moja.
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
-            full_name: formData.name, // goes to raw_user_meta_data
+            full_name: formData.name,
             phone_number: formData.phone,
             discount_code: discountCode
           },
@@ -51,32 +51,15 @@ export default function RegisterPage() {
 
       if (error) throw error;
 
-      // If signUp returned a user id immediately, create a profiles row
-      const userId = data?.user?.id;
-      if (userId) {
-        try {
-          await supabase.from('profiles').insert([{
-            id: userId,
-            full_name: formData.name,
-            phone_number: formData.phone,
-            discount_code: discountCode,
-            is_code_used: false
-          }]);
-        } catch (insertErr) {
-          // don't block registration on profile insert failure, but log it
-          console.error('Profile insert error:', insertErr);
-        }
-      }
-
       // 2. Success Feedback
       toast.success(`Karibu Bahmad, ${formData.name}!`);
       
-      // 3. Redirect au Refresh
+      // 3. Redirect kwenda Login
       router.push("/login");
 
     } catch (error: any) {
       console.error("Registration Error:", error);
-      toast.error(error.message || "Error during registration .");
+      toast.error(error.message || "Error during registration.");
     } finally {
       setLoading(false);
     }
@@ -155,6 +138,7 @@ export default function RegisterPage() {
             </div>
 
             <button 
+              type="submit"
               disabled={loading} 
               className="w-full bg-[#5B2C6F] text-white py-4 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#4A235A] transition-all duration-300 flex items-center justify-center gap-2 disabled:bg-stone-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg mt-4"
             >
