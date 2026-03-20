@@ -27,6 +27,8 @@ function NavItem({ active, onClick, icon, label }: any) {
 export default function AdminDashboard() {
   const supabase = createClient();
   const router = useRouter();
+  
+  // States
   const [activeTab, setActiveTab] = useState("overview");
   const [orderFilter, setOrderFilter] = useState("active"); 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,15 +40,17 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // --- MPYA: Auth State ---
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // MODIFIED: Added wholesale fields
   const [formData, setFormData] = useState({
     name: "", price: "", category: "perfumes", gender: "unisex", description: "",
     image_url: "", size1: "", size2: "", size3: "",
     wholesale_price: "", wholesale_min_qty: "6"
   });
 
-  // Fetching Data from Supabase
+  // Fetching Data function
   const fetchData = async () => {
     try {
       const { data: prodData } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -61,42 +65,51 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- HAPA NDIPO NIMEPADILISHA (REALTIME UPDATES) ---
+  // --- MODIFIED EFFECT: AUTH + REALTIME ---
   useEffect(() => {
-    // 1. Vuta data mara ya kwanza
-    fetchData();
+    const initializeAdmin = async () => {
+      // 1. Kagua kama User ni Admin (Kutumia metadata uliyoweka kule SQL)
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    // 2. Washa "Sikio" la kusikiliza mabadiliko (Orders & Products)
-    const channel = supabase
-      .channel('admin_dashboard_realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'orders' },
-        (payload) => {
-          // Pale mabadiliko yanapotokea kwenye Orders
-          if (payload.eventType === 'INSERT') {
-            toast.info("🔔 New Order Received!", { description: "Refreshing dashboard..." });
-          } else if (payload.eventType === 'UPDATE') {
-             // Hatupigi kelele sana kwenye update ili tusiwe kero, tunarefresh tu
+      if (authError || !user || user.user_metadata?.role !== 'admin') {
+        toast.error("Access Denied: Admins Only!");
+        router.push('/login');
+        return;
+      }
+
+      // 2. Kama ni Admin, ruhusu na vuta data
+      setCheckingAuth(false);
+      fetchData();
+
+      // 3. Washa Realtime "Sikio"
+      const channel = supabase
+        .channel('admin_dashboard_realtime')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'orders' },
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              toast.info("🔔 New Order Received!", { description: "Updating dashboard..." });
+            }
+            fetchData();
           }
-          fetchData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'products' }, // Pia tunasikiliza products
-        () => fetchData()
-      )
-      .subscribe();
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'products' },
+          () => fetchData()
+        )
+        .subscribe();
 
-    // 3. Zima channel ukiondoka kwenye page
-    return () => {
-      supabase.removeChannel(channel);
+      return () => {
+        supabase.removeChannel(channel);
+      };
     };
-  }, []);
-  // --- MWISHO WA MABADILIKO ---
 
-  // Business Stats Logic
+    initializeAdmin();
+  }, []);
+
+  // --- STATS LOGIC ---
   const stats = useMemo(() => {
     const totalSales = orders
       .filter(o => o.status === 'delivered' || o.status === 'completed')
@@ -125,19 +138,14 @@ export default function AdminDashboard() {
     if (error) {
       toast.error("Fail to change status!");
     } else {
-      toast.success(`The status changed to : ${newStatus.toUpperCase()}`);
-      // Hatuhitaji kuita fetchData() hapa kwa sababu Realtime itafanya kazi hiyo automatically
+      toast.success(`Status updated to: ${newStatus.toUpperCase()}`);
     }
   };
 
   const handleAdminLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success("logout successed");
-      router.push('/login');
-    } catch (err: any) {
-      toast.error("Fail to logout");
-    }
+    await supabase.auth.signOut();
+    toast.success("Logged out successfully");
+    router.push('/login');
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,19 +160,19 @@ export default function AdminDashboard() {
 
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
       setFormData({ ...formData, image_url: data.publicUrl });
-      toast.success("Picture uploaded seccessfully!");
+      toast.success("Image uploaded!");
     } catch (error: any) {
-      toast.error("Fail to upload the picture: " + error.message);
+      toast.error("Upload failed: " + error.message);
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Do you really want to delete the product?: ${name}?`)) {
+    if (confirm(`Delete product: ${name}?`)) {
       const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) toast.error("Fail to delete the product!");
-      else { toast.success("Product deleted!"); /* fetchData() itaitwa na realtime */ }
+      if (error) toast.error("Delete failed!");
+      else toast.success("Product deleted!");
     }
   };
 
@@ -176,7 +184,6 @@ export default function AdminDashboard() {
       .map(s => s.trim())
       .filter(s => s !== "");
 
-    // MODIFIED: Payload now includes wholesale data
     const payload = { 
       name: formData.name, 
       price: parseFloat(formData.price), 
@@ -196,7 +203,7 @@ export default function AdminDashboard() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(editMode ? "Product has been updated!" : "New product is added!");
+      toast.success(editMode ? "Updated!" : "Added!");
       setIsModalOpen(false);
       setFormData({ 
         name: "", price: "", category: "perfumes", gender: "unisex", description: "", 
@@ -204,10 +211,19 @@ export default function AdminDashboard() {
         wholesale_price: "", wholesale_min_qty: "6" 
       });
       setEditMode(false);
-      // fetchData() not needed here, realtime will catch it
     }
     setLoading(false);
   };
+
+  // --- LOADER VIEW ---
+  if (checkingAuth) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <Loader2 className="animate-spin text-[#5B2C6F] mb-4" size={40} />
+        <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">Verifying Admin Access...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-[#FCFCFC] font-sans text-stone-800">
