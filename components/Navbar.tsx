@@ -22,9 +22,9 @@ export default function Navbar() {
   const router = useRouter();
   
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // Tumeongeza state ya role
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [hasOrderUpdate, setHasOrderUpdate] = useState(false);
-const ADMIN_EMAIL = "admin@bahmadperfumes.com";
 
   const t = translations[lang];
 
@@ -59,22 +59,30 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
     }
   };
 
-  // 2. AUTH LOGIC
+  // 2. AUTH LOGIC (IMEBORESHWA)
   useEffect(() => {
-    const getUser = async () => {
+    const getUserData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
       if (user) {
+        // Pata Role kutoka Metadata
+        setUserRole(user.user_metadata?.role || null);
+        
         try {
           const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
           if (profile?.full_name) setDisplayName(profile.full_name);
         } catch (e) {}
+      } else {
+        setUserRole(null);
       }
     };
-    getUser();
+    
+    getUserData();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      setUserRole(session?.user?.user_metadata?.role ?? null);
     });
 
     return () => {
@@ -85,8 +93,10 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setUserRole(null);
     toast.success(lang === "en" ? "Logged out" : "Umetoka");
     router.push("/login");
+    router.refresh();
   };
 
   return (
@@ -113,7 +123,8 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
             <Link href="/categories" className="hover:text-[#5B2C6F] transition">{t.categories}</Link>
             <Link href="/about" className="hover:text-[#5B2C6F] transition">{t.about}</Link>
             
-            {user?.email === ADMIN_EMAIL && (
+            {/* DASHBOARD SASA INATEGEMEA ROLE BADALA YA EMAIL */}
+            {userRole === 'admin' && (
               <Link href="/admin" className="text-[#C5A059] flex items-center gap-1 border-b border-[#C5A059]" title="Admin Dashboard">
                 <LayoutDashboard size={12} /> {lang === "en" ? "Dashboard" : "Dashibodi"}
               </Link>
@@ -142,7 +153,6 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
             </button>
 
             {!user ? (
-              /* LOGIN */
               <Link 
                 href="/login" 
                 className="hover:text-[#5B2C6F] transition p-2"
@@ -152,7 +162,6 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
               </Link>
             ) : (
               <div className="flex items-center gap-4">
-                {/* ORDERS */}
                 <Link 
                   href="/orders" 
                   className="relative flex items-center gap-1 text-[10px] font-bold text-stone-600 hover:text-[#5B2C6F] transition border-r pr-4 border-stone-100"
@@ -162,7 +171,6 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
                   {hasOrderUpdate && <span className="absolute top-0 right-3 h-2 w-2 rounded-full bg-red-500 border-2 border-white animate-pulse"></span>}
                 </Link>
 
-                {/* LOGOUT */}
                 <button 
                   onClick={handleLogout} 
                   className="text-stone-300 hover:text-red-500 transition"
@@ -189,7 +197,7 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
           </div>
         </div>
 
-        {/* SEARCH OVERLAY */}
+        {/* SEARCH OVERLAY (Hapa haijabadilika) */}
         {isSearchOpen && (
           <div className="absolute top-0 left-0 w-full bg-white shadow-2xl animate-in slide-in-from-top duration-300 z-[110] border-b border-stone-100">
             <div className="container mx-auto px-6 py-10">
@@ -220,7 +228,6 @@ const ADMIN_EMAIL = "admin@bahmadperfumes.com";
                         href={`/shop/${product.id}`}
                         onClick={() => {setIsSearchOpen(false); setSearchQuery("");}}
                         className="flex items-center gap-4 p-4 bg-stone-50 hover:bg-stone-100 rounded-xl transition group"
-                        title={`${product.name} - TZS ${product.price.toLocaleString()}`}
                       >
                         <div className="relative w-20 h-20 shrink-0 bg-white rounded-lg overflow-hidden border border-stone-100">
                           <Image src={product.image_url} alt={product.name} fill className="object-contain p-2" />
