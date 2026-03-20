@@ -6,7 +6,7 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { useTranslation } from "@/app/hooks/useTranslation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff, HelpCircle } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -23,8 +23,6 @@ export default function LoginPage() {
 
   const supabase = createClient();
 
-  const ADMIN_EMAIL = "admin@Bahmad.com"; 
-
   // --- LOGIC YA KUINGIA (LOGIN) ---
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +36,16 @@ export default function LoginPage() {
 
       if (error) throw error;
 
+      // TUNASOMA ROLE KUTOKA KWENYE METADATA YA USER
+      const userRole = data.user?.user_metadata?.role;
+
       toast.success(lang === 'en' ? "Welcome Back!" : "Karibu Tena!");
+      
+      // Refresh session data
       router.refresh();
 
-      if (data.user?.email === ADMIN_EMAIL) {
+      // ELEKEZA MTUMIAJI SEHEMU HUSIKA
+      if (userRole === 'admin') {
         router.push("/admin");
       } else if (returnUrl) {
         router.push(returnUrl);
@@ -122,7 +126,6 @@ export default function LoginPage() {
                 <label className="text-[10px] font-bold uppercase tracking-widest text-stone-500 group-focus-within:text-[#5B2C6F] transition-colors">
                   {t.password}
                 </label>
-                {/* Forgot Password Link */}
                 <button 
                   type="button"
                   onClick={handleForgotPassword}
