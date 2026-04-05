@@ -5,6 +5,7 @@ import { CartProvider } from "./context/CartContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { createClient } from '@supabase/supabase-js';
 import { Toaster } from "sonner";
+import type { Language } from "./context/LanguageContext";
 
 const playfair = Playfair_Display({ 
   subsets: ["latin"],
@@ -68,13 +69,13 @@ export default async function RootLayout({
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  let initialLang = 'sw';
+  let initialLang: Language = 'sw';
 
   return (
     <html lang={initialLang}>
       <body className={`${playfair.variable} ${lato.variable} font-sans antialiased`}>
         {/* LanguageProvider inafunika kila kitu ili lugha isikike kote */}
-        <LanguageProvider initialLang={initialLang as any}>
+        <LanguageProvider initialLang={initialLang}>
           <CartProvider>
             {children}
             {/* Toaster kwa ajili ya alerts nzuri (Mfano: "Item added to cart") */}

@@ -54,32 +54,50 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Pata data za user
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 3. LANGUAGE: If user logged in, fetch preferred language and set cookie for SSR
-  let preferredLang = 'en';
-  if (user) {
-    try {
-      const { data: profile } = await supabase.from('profiles').select('preferred_lang').eq('id', user.id).single();
-      if (profile?.preferred_lang) {
-        preferredLang = profile.preferred_lang;
-        response.cookies.set('Bahmad_lang_ssr', preferredLang, { maxAge: 60 * 60 * 24 * 365 });
-      }
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  // 1. ULINZI WA ADMIN: Zuia wasio admin kuingia /admin
+  // --- 1. ULINZI WA ADMIN (/admin) ---
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!user || user.email !== 'admin@bahmad.com') {
-      return NextResponse.redirect(new URL('/login', request.url))
+    // Angalia role kwenye metadata (inaweza kuwa kwenye app_metadata au user_metadata)
+    const role = user?.app_metadata?.role || user?.user_metadata?.role;
+
+    if (!user || role !== 'admin') {
+      // Kama amesha-login lakini siyo admin, mpeleke home (/). 
+      // Kama haja-login kabisa, mpeleke login.
+      const redirectPath = user ? '/' : '/login';
+      return NextResponse.redirect(new URL(redirectPath, request.url));
     }
   }
 
-  // 2. ULINZI WA LOGIN/REGISTER: Kama amesha-login, asione tena page za login
+  // --- 2. ULINZI WA LOGIN/REGISTER ---
+  // Kama tayari amesha-login, asiruhusiwe kuona page za login/register
   if (user && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {
     return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // --- 3. LANGUAGE LOGIC (Optimized) ---
+  // Badala ya kupiga DB kila wakati, tunasoma cookie kwanza.
+  // Tunapiga DB mara moja tu kama user amelogin na cookie haipo.
+  const langCookie = request.cookies.get('Bahmad_lang_ssr')?.value;
+
+  if (user && !langCookie) {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('preferred_lang')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.preferred_lang) {
+        response.cookies.set('Bahmad_lang_ssr', profile.preferred_lang, { 
+          maxAge: 60 * 60 * 24 * 365,
+          path: '/' 
+        });
+      }
+    } catch (e) {
+      // Shughulikia error kimya kimya
+    }
   }
 
   return response
@@ -92,7 +110,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - api/auth (supabase auth internal routes)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/auth).*)',
   ],
 }

@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-type Language = "en" | "sw";
+export type Language = "en" | "sw";
 
 interface LanguageContextType {
   lang: Language;
