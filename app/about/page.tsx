@@ -26,7 +26,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-stone-900/50" /> 
 
         {/* Maandishi */}
-        <div className="relative z-10 text-center px-6">
+        <div className="relative z-12 text-center px-8">
           <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 drop-shadow-xl tracking-wide">
             {t.curatorsOfElegance}
           </h1>

@@ -40,7 +40,7 @@ export const allProducts: Product[] = [
     price: 15000,
     image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop",
     description: "Handmade organic soap made with 100% pure shea butter and essential oils. Keeps your skin glowing and hydrated.",
-    descriptionSw: "Sabuni ya kikaboni iliyotengenezwa kwa si bila ya uharibifu na mafuta ya shea 100% na mafuta muhimu. Inafanya ngozi yako kung'aa na kuendelea kuwa na unyevu.",
+    descriptionSw: "Sabuni ya kikaboni iliyotengenezwa kiasili bila ya uharibifu kwa kutumia mafuta ya shea 100% na mafuta muhimu. Inafanya ngozi yako kung'aa na kuendelea kuwa na unyevu.",
     sizes: ["150g"]
   },
   {
@@ -50,7 +50,7 @@ export const allProducts: Product[] = [
     price: 25000,
     image: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?q=80&w=400&auto=format&fit=crop",
     description: "Exfoliating sea salt scrub with citrus essential oils to remove dead skin and reveal a smooth texture.",
-    descriptionSw: "Kisafishaji cha chumvi ya bahari kwa kupiga seli zilizokufa, chenye mafuta muhimu ya machungwa kwa ngozi laini.",
+    descriptionSw: "Kisafishaji cha chumvi ya bahari kwa kuondosha seli zilizokufa, chenye mafuta muhimu ya machungwa kwa ngozi laini.",
     sizes: ["250g"]
   },
 

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bahmad Perfumes| Luxury in Every Drop",
     description: "Elevate your lifestyle with our curated luxury scents. Pata punguzo la 10% kwenye oda yako ya kwanza.",
-    url: "https://www.bahmad.com", // Badilisha na domain yako utakayohost
+    url: "https://www.bahmadperfumes.com", // Badilisha na domain yako utakayohost
     siteName: "Bahmad Perfumes",
     images: [
       {
@@ -68,7 +68,7 @@ export default async function RootLayout({
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  let initialLang = 'en';
+  let initialLang = 'sw';
 
   return (
     <html lang={initialLang}>
@@ -79,11 +79,18 @@ export default async function RootLayout({
             {children}
             {/* Toaster kwa ajili ya alerts nzuri (Mfano: "Item added to cart") */}
             <Toaster 
-              position="bottom-right" 
-              richColors 
-              expand={false}
-              closeButton
-            />
+  position="bottom-right" 
+  richColors 
+  expand={false}
+  closeButton
+  toastOptions={{
+    style: { 
+      fontSize: '16px', // Maandishi makubwa zaidi kwa ajili ya User Experience
+      padding: '16px',
+      fontFamily: 'var(--font-lato)', // Inatumia font ya Lato uliyoset
+    },
+  }}
+/>
           </CartProvider>
         </LanguageProvider>
       </body>

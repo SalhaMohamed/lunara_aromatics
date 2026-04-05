@@ -107,7 +107,7 @@ export default function Navbar() {
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* LOGO SECTION */}
-          <Link href="/" className="relative w-40 md:w-52 h-10 flex items-center group" title={t.home || "Home"}>
+          <Link href="/" className="relative w-56 md:w-72 h-16 flex items-center group" title={t.home || "Home"}>
             <Image 
               src="/logo.png" 
               alt="Bahmad Perfumes" 
@@ -145,7 +145,7 @@ export default function Navbar() {
             {/* LANGUAGE TOGGLE */}
             <button 
               onClick={() => setLang(lang === "en" ? "sw" : "en")}
-              className="hidden sm:flex items-center gap-1 text-[10px] font-bold border border-stone-200 px-2 py-1 rounded hover:bg-stone-50 transition"
+              className="flex items-center gap-1 text-[10px] font-bold border border-stone-200 px-2 py-1 rounded hover:bg-stone-50 transition"
               title={lang === "en" ? "Switch to Swahili" : "Badili kwenda Kiingereza"}
             >
               <Globe size={12} />

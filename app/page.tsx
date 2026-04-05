@@ -172,31 +172,64 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="bg-[#1a1510] text-stone-300 py-20 border-t border-[#C5A059]/20">
         <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
+          
+          {/* LOGO & DESCRIPTION */}
           <div className="space-y-6">
             <h2 className="text-3xl font-serif text-white italic">Bahmad<span className="text-[#C5A059]">.</span></h2>
-            <p className="text-xs">{t.description}</p>
+            <p className="text-[11px] leading-relaxed italic text-stone-400">
+              {lang === 'en' 
+                ? "Experience the essence of luxury in every drop. Bahmad Perfumes brings you premium fragrances curated for elegance." 
+                : "Jionee harufu ya kifahari katika kila tone. Bahmad Perfumes inakuletea marashi ya daraja la juu yaliyochaguliwa kwa ustadi."}
+            </p>
           </div>
+
+          {/* OPENING HOURS */}
           <div className="space-y-6">
-             <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center justify-center md:justify-start gap-2"><Clock size={14} className="text-[#C5A059]" /> Opening Hours</h3>
+             <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
+               <Clock size={14} className="text-[#C5A059]" /> 
+               {lang === 'en' ? "Opening Hours" : "Muda wa Kazi"}
+             </h3>
              <p className="text-xs">{t.footer_opening_hours}</p>
           </div>
+
+          {/* CONTACT US (NAMBA MBILI) */}
           <div className="space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center justify-center md:justify-start gap-2"><Phone size={14} className="text-[#C5A059]" /> Contact Us</h3>
-             <p className="text-xs">{t.footer_contact_number}</p>
+            <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
+              <Phone size={14} className="text-[#C5A059]" /> 
+              {lang === 'en' ? "Contact Us" : "Wasiliana Nasi"}
+            </h3>
+            <div className="flex flex-col gap-2 text-xs">
+               <a href="tel:+255688339466" className="hover:text-[#C5A059] transition">+255 688 339 466</a>
+               <a href="tel:+255777088040" className="hover:text-[#C5A059] transition">+255 777 088 040</a>
+            </div>
           </div>
+
+          {/* SOCIALS & WHATSAPP GROUP (LINK YA AWALI) */}
           <div className="space-y-6">
-             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Follow Us</h3>
+             <h3 className="text-xs font-bold text-white uppercase tracking-widest">
+               {lang === 'en' ? "Follow Us" : "Tufuatilie"}
+             </h3>
              <div className="flex justify-center md:justify-start gap-4">
-                <a href={SOCIAL_LINKS.instagram} target="_blank" className="p-2 border border-stone-700 rounded-full hover:bg-[#C5A059]"><Instagram size={18} /></a>
-                <a href={SOCIAL_LINKS.facebook} target="_blank" className="p-2 border border-stone-700 rounded-full hover:bg-[#1877F2]"><Facebook size={18} /></a>
+                <a href={SOCIAL_LINKS.instagram} target="_blank" className="p-2 border border-stone-700 rounded-full hover:bg-[#C5A059] transition-colors"><Instagram size={18} /></a>
+                <a href={SOCIAL_LINKS.facebook} target="_blank" className="p-2 border border-stone-700 rounded-full hover:bg-[#1877F2] transition-colors"><Facebook size={18} /></a>
              </div>
              <div className="pt-4">
-                <a href={SOCIAL_LINKS.whatsappGroup} target="_blank" className="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-sm text-[10px] font-bold uppercase tracking-wider"><MessageCircle size={16} /> {t.joinVIPGroup}</a>
+                <a 
+                  href={SOCIAL_LINKS.whatsappGroup} 
+                  target="_blank" 
+                  className="inline-flex items-center gap-2 bg-[#25D366] text-white px-6 py-3 rounded-sm text-[10px] font-bold uppercase tracking-wider hover:bg-[#128C7E] transition-all"
+                >
+                  <MessageCircle size={16} /> {t.joinVIPGroup}
+                </a>
              </div>
           </div>
         </div>
+
+        {/* COPYRIGHT BAR (INAYOJI-UPDATE MWAKA) */}
         <div className="container mx-auto px-6 mt-16 pt-8 border-t border-stone-800 text-center">
-          <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">© 2026 BAHMAD PERFUMES | LUXURY IN EVERY DROP</p>
+          <p className="text-[10px] text-stone-500 tracking-[0.2em] uppercase">
+            © {new Date().getFullYear()} BAHMAD PERFUMES | {lang === 'en' ? "LUXURY IN EVERY DROP" : "RAHA KATIKA KILA TONE"}
+          </p>
         </div>
       </footer>
     </main>
