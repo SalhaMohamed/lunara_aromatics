@@ -43,7 +43,7 @@ export default function Home() {
   const categories = [
     { name: "PERFUMES", slug: "perfumes", image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?q=80&w=400&auto=format&fit=crop" },
     { name: "SOAPS & BATH", slug: "soaps-bath", image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=400&auto=format&fit=crop" },
-    { name: "LOTIONS & OILS", slug: "lotions-oils", image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=400&auto=format&fit=crop" },
+    { name: "LOTIONS & OILS", slug: "lotions-oils", image: "https://images.unsplash.com/photo-1526947425960-945c6e72858f?q=80&w=400&auto=format&fit=crop" },
     { name: "HOME FRAGRANCE", slug: "home-fragrance", image: "https://images.unsplash.com/photo-1602874801007-bd458bb1b8b6?q=80&w=400&auto=format&fit=crop" },
   ];
 
