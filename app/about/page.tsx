@@ -38,33 +38,35 @@ export default function AboutPage() {
       </section>
 
       {/* STORY SECTION */}
-      <section className="py-24 container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-        
-        {/* Upande wa Maelezo */}
-        <div className="space-y-8 order-2 md:order-1">
-          <h2 className="text-3xl font-serif text-[#5B2C6F] uppercase tracking-widest">
-            {t.theBahmadCollection}
-          </h2>
-          <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light">
-            <p>{t.aboutWelcome}</p>
-            <p>{t.aboutAuthenticity}</p>
-            <p>{t.aboutGuarantee}</p>
+        <section className="py-24 container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          
+          {/* Upande wa Maelezo */}
+          <div className="space-y-8 order-2 md:order-1">
+            <h2 className="text-3xl font-serif text-[#5B2C6F] uppercase tracking-widest">
+              {t.theBahmadCollection}
+            </h2>
+            <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light">
+              <p>{t.aboutWelcome}</p>
+              <p>{t.aboutAuthenticity}</p>
+              <p>{t.aboutGuarantee}</p>
+            </div>
           </div>
-        </div>
 
-        {/* PICHA HII NDIO TUMEIBADILISHA KUWA YA MUUZAJI */}
-        <div className="relative h-[500px] bg-stone-100 order-1 md:order-2 rounded-sm overflow-hidden shadow-2xl border border-stone-100">
-           <Image 
-             src="/muuzaji.jpg" // Picha yako ya ndani
-             alt="Bahmad Specialist"
-             fill
-             className="object-cover transition-transform duration-700 hover:scale-105"
-             quality={90} // Inampa mng'ao kama wa picha za Unsplash
-           />
-           {/* Overlay ndogo ya kifahari juu ya picha ya muuzaji */}
-           <div className="absolute inset-0 bg-stone-900/5 hover:bg-transparent transition-colors duration-500" />
-        </div>
-      </section>
+          {/* PICHA YA MUUZAJI (Iliyorekebishwa kuonyesha nzima) */}
+          {/* Tumeongeza bg-white hapa ili nafasi zinazobaki ziwe nyeupe safi */}
+          <div className="relative h-[500px] bg-white order-1 md:order-2 rounded-sm overflow-hidden shadow-xl border border-stone-100 p-4">
+             <Image 
+               src="/muuzaji.jpg" 
+               alt="Bahmad Specialist"
+               fill
+               // TUMEBUDILISHA object-cover KUWA object-contain
+               className="object-contain transition-transform duration-700 hover:scale-105"
+               quality={95} // Tumeongeza quality kidogo zaidi
+             />
+             {/* Overlay ndogo ya kifahari juu ya picha ya muuzaji */}
+             <div className="absolute inset-0 bg-stone-900/5 hover:bg-transparent transition-colors duration-500" />
+          </div>
+        </section>
 
       {/* VALUE PROPOSITION (Sifa za Duka) */}
       <section className="bg-[#fdfbf7] py-20 border-t border-stone-100">
