@@ -42,29 +42,43 @@ export default function AboutPage() {
           
           {/* Upande wa Maelezo */}
           <div className="space-y-8 order-2 md:order-1">
-            <h2 className="text-3xl font-serif text-[#5B2C6F] uppercase tracking-widest">
-              {t.theBahmadCollection}
+            <h2 className="text-4xl font-serif text-[#5B2C6F] tracking-[0.2em] mb-4">
+              BAHMAD
             </h2>
-            <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light">
-              <p>{t.aboutWelcome}</p>
+            <h3 className="text-sm font-bold text-[#C5A059] tracking-[0.4em] uppercase mb-8">
+              {t.theBahmadCollection}
+            </h3>
+            <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light italic">
+              <p>"{t.aboutWelcome}"</p>
               <p>{t.aboutAuthenticity}</p>
               <p>{t.aboutGuarantee}</p>
             </div>
           </div>
 
-          {/* PICHA YA MUUZAJI (Iliyorekebishwa kuonyesha nzima) */}
-          {/* Tumeongeza bg-white hapa ili nafasi zinazobaki ziwe nyeupe safi */}
-          <div className="relative h-[500px] bg-white order-1 md:order-2 rounded-sm overflow-hidden shadow-xl border border-stone-100 p-4">
-             <Image 
-               src="/muuzaji.jpg" 
-               alt="Bahmad Specialist"
-               fill
-               // TUMEBUDILISHA object-cover KUWA object-contain
-               className="object-contain transition-transform duration-700 hover:scale-105"
-               quality={95} // Tumeongeza quality kidogo zaidi
-             />
-             {/* Overlay ndogo ya kifahari juu ya picha ya muuzaji */}
-             <div className="absolute inset-0 bg-stone-900/5 hover:bg-transparent transition-colors duration-500" />
+          {/* PICHA YA MUUZAJI (Iliyorekebishwa Upana na Urefu) */}
+          <div className="order-1 md:order-2 flex justify-center">
+            <div className="relative w-full max-w-[400px] aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border-[12px] border-white ring-1 ring-stone-100">
+               <Image 
+                 src="/muuzaji.jpg" 
+                 alt="Bahmad Perfume Expert"
+                 fill
+                 // Hapa tunatumia cover, lakini kwa sababu fremu (3/4) 
+                 // inaendana na picha nyingi za simu, haitakatwa vibaya.
+                 className="object-cover transition-transform duration-1000 hover:scale-110"
+                 quality={100}
+                 priority
+               />
+               
+               {/* Elegant Overlay Layer */}
+               <div className="absolute inset-0 bg-gradient-to-t from-[#5B2C6F]/20 to-transparent pointer-events-none" />
+               
+               {/* Signature/Label ndogo chini ya picha */}
+               <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 shadow-lg">
+                 <p className="text-[10px] tracking-[0.3em] font-bold text-[#5B2C6F] uppercase">
+                   Founder & Curator
+                 </p>
+               </div>
+            </div>
           </div>
         </section>
 
