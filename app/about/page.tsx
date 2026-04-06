@@ -46,26 +46,23 @@ export default function AboutPage() {
             {t.theBahmadCollection}
           </h2>
           <div className="space-y-6 text-stone-600 leading-relaxed text-lg font-light">
-            <p>
-              {t.aboutWelcome}
-            </p>
-            <p>
-              {t.aboutAuthenticity}
-            </p>
-            <p>
-              {t.aboutGuarantee}
-            </p>
+            <p>{t.aboutWelcome}</p>
+            <p>{t.aboutAuthenticity}</p>
+            <p>{t.aboutGuarantee}</p>
           </div>
         </div>
 
-        {/* Upande wa Picha ndogo */}
-        <div className="relative h-[500px] bg-stone-100 order-1 md:order-2 rounded-sm overflow-hidden shadow-2xl">
+        {/* PICHA HII NDIO TUMEIBADILISHA KUWA YA MUUZAJI */}
+        <div className="relative h-[500px] bg-stone-100 order-1 md:order-2 rounded-sm overflow-hidden shadow-2xl border border-stone-100">
            <Image 
-             src="https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?q=80&w=800"
-             alt="Luxury Products Display"
+             src="/muuzaji.jpg" // Picha yako ya ndani
+             alt="Bahmad Specialist"
              fill
-             className="object-cover"
+             className="object-cover transition-transform duration-700 hover:scale-105"
+             quality={90} // Inampa mng'ao kama wa picha za Unsplash
            />
+           {/* Overlay ndogo ya kifahari juu ya picha ya muuzaji */}
+           <div className="absolute inset-0 bg-stone-900/5 hover:bg-transparent transition-colors duration-500" />
         </div>
       </section>
 
