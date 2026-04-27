@@ -75,7 +75,7 @@ export default function AboutPage() {
                {/* Signature/Label ndogo chini ya picha */}
                <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur-sm px-4 py-2 shadow-lg">
                  <p className="text-[10px] tracking-[0.3em] font-bold text-[#5B2C6F] uppercase">
-                   Founder & Curator
+                   Mr. Hamad the Curator
                  </p>
                </div>
             </div>
