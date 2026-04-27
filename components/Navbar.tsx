@@ -106,15 +106,23 @@ export default function Navbar() {
       <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* LOGO SECTION */}
-          <Link href="/" className="relative w-56 md:w-72 h-16 flex items-center group" title={t.home || "Home"}>
-            <Image 
-              src="/logo.png" 
-              alt="Bahmad Perfumes" 
-              fill 
-              className="object-contain transition-transform duration-500 group-hover:scale-105"
-              priority 
-            />
+         {/* LOGO SECTION */}
+          <Link href="/" className="flex items-center gap-3 group" title={t.home || "Home"}>
+            {/* 1. Icon ya BP */}
+            <div className="relative w-12 h-12 md:w-14 md:h-14 shrink-0">
+              <Image 
+                src="/logo.png" 
+                alt="Bahmad Perfumes Icon" 
+                fill 
+                className="object-contain transition-transform duration-500 group-hover:scale-105"
+                priority 
+              />
+            </div>
+            
+            {/* 2. Maneno */}
+            <span className="text-lg md:text-2xl font-serif font-bold tracking-[0.15em] text-[#C5A059] group-hover:text-[#5B2C6F] transition-colors duration-300 hidden sm:block whitespace-nowrap">
+              BAHMAD PERFUMES
+            </span>
           </Link>
 
           {/* CENTER MENU */}
